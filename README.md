@@ -48,7 +48,6 @@ The project currently includes three public HTML pages:
 layan_garage/
 ├── assets/
 │   ├── images/
-│   │   ├── cars/
 │   │   ├── services/
 │   │   ├── about-garage.jpg
 │   │   ├── hero-garage.jpg
@@ -60,15 +59,28 @@ layan_garage/
 │       ├── favicon.ico
 │       └── logo.png
 ├── css/
+│   ├── admin.css
 │   ├── main.css
 │   └── responsive.css
 ├── js/
+│   ├── admin-auth.js
+│   ├── admin-social-generator.js
+│   ├── admin-vehicles.js
 │   ├── cars.js
 │   ├── main.js
-│   └── seo.js
+│   ├── seo.js
+│   ├── supabase-config.js
+│   └── vehicle-store.js
+├── admin/
+│   ├── dashboard.html
+│   └── login.html
 ├── reports/
 │   └── lighthouse reports
+├── supabase/
+│   ├── migrations/
+│   └── README.md
 ├── algemene-voorwaarden.html
+├── info.md
 ├── index.html
 ├── privacy.html
 └── README.md
@@ -83,6 +95,7 @@ This project intentionally uses a lightweight stack:
 - HTML5
 - CSS3
 - Vanilla JavaScript
+- Supabase Auth, Database, and Storage for the vehicle admin panel
 - Web3Forms for contact form submission
 - Schema.org JSON-LD for SEO
 - Open Graph and Twitter Card metadata for link previews
@@ -125,7 +138,7 @@ Included services:
 
 ### Vehicle Inventory
 
-Vehicle data is stored in `js/cars.js`. Cards and modal content are generated dynamically from the JavaScript data array.
+Vehicle inventory is loaded from Supabase through `js/vehicle-store.js`. Cards and modal content are generated dynamically in `js/cars.js`.
 
 Each car entry includes:
 
@@ -138,10 +151,54 @@ Each car entry includes:
 - Seats
 - Price
 - Status
+- Condition: new or used
 - Image gallery
 - Extras
 
-This keeps the HTML cleaner and makes future inventory updates easier.
+The original local JavaScript vehicle array is kept only as a visual fallback if Supabase is temporarily unavailable. The production source of truth is Supabase.
+
+Vehicle photos are not stored in the repository anymore. They are served from Supabase Storage:
+
+```text
+Bucket: vehicle-images
+Path: vehicles/<vehicle-slug>/<filename>
+```
+
+The old local folder was removed:
+
+```text
+assets/images/cars
+```
+
+When a visitor opens an old vehicle URL after that vehicle has been removed, the website redirects the user to:
+
+```text
+index.html#cars
+```
+
+This avoids leaving users and future search engine crawlers on stale vehicle anchors.
+
+### Admin Panel
+
+The project includes a lightweight admin area:
+
+```text
+admin/login.html
+admin/dashboard.html
+```
+
+The admin panel supports:
+
+- Creating, editing, hiding, and deleting vehicles.
+- Uploading vehicle photos directly to Supabase Storage.
+- Setting a featured image.
+- Reordering images.
+- Deleting images from both Supabase Storage and the `vehicle_images` database table.
+- Editing feature lists.
+- Selecting common dropdown values for fuel type, engine, transmission, Euro norm, seats, and condition.
+- Using `Other` fields when a value is not available in the dropdown.
+- Generating Dutch Facebook, Instagram, and WhatsApp post text while the admin fills vehicle data.
+- Including the public vehicle link in generated social media text.
 
 ### Contact Form
 
@@ -201,6 +258,8 @@ Several optimizations were applied:
 
 - Removed unused image files.
 - Compressed active image assets while preserving visual quality.
+- Migrated vehicle gallery photos from the repository to Supabase Storage.
+- Removed the local vehicle image folder after verifying all 98 vehicle photos were available in Storage.
 - Added WebP hero image variants.
 - Improved LCP by replacing the heavy hero image delivery path.
 - Fixed accessibility contrast issues.
@@ -270,34 +329,89 @@ On Windows, Chrome may need to be available through `CHROME_PATH`.
 
 ---
 
+## Supabase Setup
+
+Supabase is used for the vehicle administration workflow.
+
+Live project details are documented in:
+
+```text
+info.md
+```
+
+The public browser configuration is stored in:
+
+```text
+js/supabase-config.js
+```
+
+Supabase migration files are stored in:
+
+```text
+supabase/migrations/
+```
+
+Current migrations:
+
+1. `001_vehicle_inventory_schema.sql`
+2. `002_seed_current_inventory.sql`
+3. `003_harden_vehicle_rls_policies.sql`
+4. `004_add_owner_admin_user.sql`
+5. `005_add_vehicle_condition_field.sql`
+6. `006_migrate_vehicle_images_to_storage.sql`
+
+Current production counts:
+
+```text
+Vehicles: 10
+Vehicle feature records: 58
+Vehicle image records: 98
+Supabase Storage vehicle images: 98
+Admin users: 1
+```
+
+Storage policy summary:
+
+- The `vehicle-images` bucket is public so direct image URLs can load on the website.
+- Public listing of bucket objects is not allowed.
+- Authenticated admins can upload, update, read, and delete vehicle storage objects.
+- Public users read images through direct public object URLs.
+
+Security note:
+
+- Passwords and service-role keys must not be committed.
+- `info.md` intentionally stores only non-secret project access information.
+- Supabase Auth leaked password protection should be enabled manually from the Supabase dashboard.
+
+---
+
 ## Updating Vehicle Inventory
 
-Vehicle data is managed in:
+Vehicle inventory is managed from the admin dashboard:
 
 ```text
-js/cars.js
+/admin/dashboard.html
 ```
 
-Each car object contains a `folder` and an `images` array. The folder should match a directory inside:
+Vehicle data is stored in Supabase tables, and vehicle photos are stored in Supabase Storage:
 
 ```text
-assets/images/cars/
+Bucket: vehicle-images
+Path: vehicles/<vehicle-slug>/<filename>
 ```
 
-Example:
+The old local `assets/images/cars` folder has been removed. New and existing vehicle images should be uploaded through the admin panel so the website can load them directly from Supabase Storage.
 
-```js
-{
-  brand: 'Volkswagen',
-  model: 'Golf 8 1.5 eHybrid OPF DSG Goal',
-  folder: 'volkswagen-golf-8-ehybrid-dsg-goal',
-  images: [
-    'volkswagen-golf-8-ehybrid-dsg-goal-exterieur-voor.jpg'
-  ]
-}
+When deleting a vehicle image from the admin panel, the application deletes:
+
+1. The image object from Supabase Storage.
+2. The related row from `vehicle_images`.
+
+When deleting or hiding a vehicle, old public vehicle links should resolve back to:
+
+```text
+index.html#cars
 ```
-
-After changing car images, make sure every filename exists in the correct folder.
 
 ---
 
@@ -363,6 +477,8 @@ This project can be deployed to:
 - Vercel static hosting
 - GitHub Pages
 - Any web server that can serve static files
+
+GitHub Pages is currently suitable as a preview/testing deployment. The final production deployment can be moved to the real hosting provider without changing the Supabase inventory setup, as long as the deployed files keep the same Supabase project configuration.
 
 For best production performance, enable:
 

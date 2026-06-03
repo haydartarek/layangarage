@@ -3,7 +3,7 @@
    Vehicle Data | Cards | Modal | Gallery
    ============================================================ */
 
-const availableCars = [
+let availableCars = [
   {
     id: 1,
     brand: 'Volkswagen', model: 'Golf 8 1.5 eHybrid OPF DSG Goal',
@@ -225,42 +225,100 @@ const availableCars = [
 ];
 
 /* ── HELPERS ── */
-const STATUS_LABEL = { beschikbaar: 'Beschikbaar', gereserveerd: 'Gereserveerd', bieden: 'Bod uitbrengen' };
-const BASE = 'assets/images/cars/';
+const STATUS_LABEL = {
+  beschikbaar: 'Beschikbaar',
+  gereserveerd: 'Gereserveerd',
+  verkocht: 'Verkocht',
+  bieden: 'Bod uitbrengen'
+};
+const CONDITION_LABEL = { new: 'Nieuw', used: 'Gebruikt' };
+const FALLBACK_VEHICLE_IMAGE = 'assets/images/hero-garage.jpg';
 
 const iconCalendar = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
 const iconSpeed   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12l4-4"/></svg>`;
 const iconFuel    = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16"/><path d="M14 10h2a2 2 0 0 1 2 2v3a1 1 0 0 0 2 0v-5l-3-3"/><line x1="3" y1="22" x2="14" y2="22"/></svg>`;
 const iconEngine  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 7V5m12 2V5M6 17v2m12-2v2"/></svg>`;
 
+function getVehicleTitle(car) {
+  return car.title || `${car.brand} ${car.model}`.trim();
+}
+
+function isRemoteImage(src) {
+  return /^https?:\/\//i.test(src) || src.startsWith('assets/');
+}
+
+function getVehicleImageSrc(car, image) {
+  if (!image) return FALLBACK_VEHICLE_IMAGE;
+  return isRemoteImage(image) ? image : FALLBACK_VEHICLE_IMAGE;
+}
+
+function getVehicleImages(car) {
+  return Array.isArray(car.images) && car.images.length
+    ? car.images.map(image => getVehicleImageSrc(car, image))
+    : [FALLBACK_VEHICLE_IMAGE];
+}
+
+function getRequestedVehicleSlug() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const querySlug = params.get('wagen') || params.get('car') || '';
+    if (querySlug) return querySlug;
+
+    const hashMatch = window.location.hash.match(/^#wagen\/(.+)$/);
+    return hashMatch ? decodeURIComponent(hashMatch[1]) : '';
+  } catch {
+    return '';
+  }
+}
+
+function redirectMissingVehicleToCars() {
+  const indexPath = window.location.pathname.replace(/[^/]*$/, 'index.html');
+  window.location.replace(`${indexPath}#cars`);
+}
+
+function openRequestedVehicleFromUrl() {
+  const requestedSlug = getRequestedVehicleSlug();
+  if (!requestedSlug) return;
+  const car = availableCars.find(item => item.slug === requestedSlug || item.folder === requestedSlug);
+  if (!car) {
+    redirectMissingVehicleToCars();
+    return;
+  }
+  const carsSection = document.getElementById('cars');
+  if (carsSection) carsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.setTimeout(() => openModal(car.id), 450);
+}
+
 /* ── CREATE CARD ── */
 function createVehicleCard(car) {
   const label       = STATUS_LABEL[car.status] || car.status;
   const isAvailable = car.status === 'beschikbaar';
   const isBieden    = car.status === 'bieden';
-  const mainImg     = `${BASE}${car.folder}/${car.images[0]}`;
+  const imgs        = getVehicleImages(car);
+  const mainImg     = imgs[0];
+  const title       = getVehicleTitle(car);
 
   const primaryBtn = isAvailable
     ? `<a href="tel:+32486890002" class="btn btn-primary">Bel voor info</a>`
     : isBieden
       ? `<a href="tel:+32486890002" class="btn btn-primary">Breng een bod uit</a>`
-      : `<button class="btn btn-dark btn-disabled" disabled>Gereserveerd</button>`;
+      : `<button class="btn btn-dark btn-disabled" disabled>${label}</button>`;
 
   const article = document.createElement('article');
   article.className = 'vehicle-card';
-  article.setAttribute('aria-label', `${car.brand} ${car.model} ${car.year}`);
+  article.setAttribute('aria-label', `${title} ${car.year}`);
 
   article.innerHTML = `
     <button type="button" class="car-image-wrapper" data-car-id="${car.id}"
-      aria-label="Bekijk ${car.images.length} foto's van ${car.brand} ${car.model}">
+      aria-label="Bekijk ${imgs.length} foto's van ${title}">
       <img src="${mainImg}"
-        alt="${car.brand} ${car.model} ${car.year} te koop bij Layan Garage BV Beveren"
+        alt="${title} ${car.year} te koop bij Layan Garage BV Beveren"
         loading="lazy" width="600" height="338"
         onerror="this.onerror=null;this.src='assets/images/hero-garage.jpg'"/>
-      ${car.images.length > 1 ? `<div class="car-photo-count"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ${car.images.length}</div>` : ''}
+      ${imgs.length > 1 ? `<div class="car-photo-count"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ${imgs.length}</div>` : ''}
     </button>
     <div class="car-body">
-      <h3 class="car-title">${car.brand} ${car.model}</h3>
+      <h3 class="car-title">${title}</h3>
       <div class="car-specs" role="list">
         <div class="spec-item" role="listitem">${iconCalendar} <span>${car.year}</span></div>
         <div class="spec-item" role="listitem">${iconSpeed}   <span>${car.mileage}</span></div>
@@ -328,7 +386,7 @@ let currentImgIndex = 0;
 let lastFocusedElement = null;
 
 function openModal(carId) {
-  const car = availableCars.find(c => c.id === carId);
+  const car = availableCars.find(c => String(c.id) === String(carId));
   if (!car) return;
 
   currentCarId    = carId;
@@ -336,10 +394,11 @@ function openModal(carId) {
   lastFocusedElement = document.activeElement;
 
   const modal   = document.getElementById('car-modal');
-  const imgs    = car.images.map(img => `${BASE}${car.folder}/${img}`);
+  const imgs    = getVehicleImages(car);
+  const title   = getVehicleTitle(car);
 
   // title & price
-  document.getElementById('modal-title').textContent  = `${car.brand} ${car.model}`;
+  document.getElementById('modal-title').textContent  = title;
   document.getElementById('modal-price').textContent  = car.price;
 
   // main image
@@ -362,6 +421,7 @@ function openModal(carId) {
 
   // specs
   document.getElementById('modal-specs').innerHTML = `
+    <div class="modal-spec-item"><strong>Conditie</strong>${CONDITION_LABEL[car.condition] || 'Gebruikt'}</div>
     <div class="modal-spec-item"><strong>Bouwjaar</strong>${car.year}</div>
     <div class="modal-spec-item"><strong>Kilometerstand</strong>${car.mileage}</div>
     <div class="modal-spec-item"><strong>Brandstof</strong>${car.fuel}</div>
@@ -369,11 +429,11 @@ function openModal(carId) {
     <div class="modal-spec-item"><strong>Transmissie</strong>${car.transmission}</div>
     <div class="modal-spec-item"><strong>Euronorm</strong>${car.environmentalClass}</div>
     <div class="modal-spec-item"><strong>Zitplaatsen</strong>${car.seats}</div>
-    <div class="modal-spec-item"><strong>Status</strong>${STATUS_LABEL[car.status]}</div>
+    <div class="modal-spec-item"><strong>Status</strong>${STATUS_LABEL[car.status] || car.status}</div>
   `;
 
   // extras
-  document.getElementById('modal-extras').innerHTML = car.extras
+  document.getElementById('modal-extras').innerHTML = (car.extras || [])
     .map(e => `<span class="modal-extra-tag">${e}</span>`).join('');
 
   // nav buttons
@@ -413,29 +473,61 @@ function closeModal() {
 }
 
 /* ── RENDER ── */
-function renderCars() {
+let vehicleEventsBound = false;
+
+async function hydrateVehicleInventory() {
+  if (!window.LayanVehicleStore?.loadVehicles) return;
+  const loadedCars = await window.LayanVehicleStore.loadVehicles({ fallbackVehicles: availableCars });
+  if (Array.isArray(loadedCars) && loadedCars.length) {
+    availableCars = loadedCars;
+  }
+}
+
+async function renderCars() {
   const container = document.getElementById('cars-container');
   if (!container) return;
 
-  createModal();
+  if (!document.getElementById('car-modal')) createModal();
+
+  container.innerHTML = '<p class="cars-loading">Voertuigen worden geladen...</p>';
+
+  try {
+    await hydrateVehicleInventory();
+  } catch (error) {
+    console.warn('Vehicle inventory hydration failed. Local fallback is used.', error);
+  }
 
   container.innerHTML = '';
+  if (!availableCars.length) {
+    container.innerHTML = '<p class="cars-empty">Er zijn momenteel geen voertuigen zichtbaar. Neem contact op voor het actuele aanbod.</p>';
+    return;
+  }
+
   const fragment = document.createDocumentFragment();
   availableCars.forEach(car => fragment.appendChild(createVehicleCard(car)));
   container.appendChild(fragment);
 
-  // click events
+  window.availableCars = availableCars;
+  window.dispatchEvent(new CustomEvent('vehicles:loaded', { detail: { vehicles: availableCars } }));
+  openRequestedVehicleFromUrl();
+
+  if (vehicleEventsBound) return;
+  vehicleEventsBound = true;
+
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-car-id]');
-    if (btn) { e.preventDefault(); openModal(parseInt(btn.dataset.carId)); }
+    if (btn) {
+      e.preventDefault();
+      openModal(btn.dataset.carId);
+    }
     if (e.target.id === 'modal-backdrop' || e.target.id === 'modal-close' || e.target.closest('#modal-close')) closeModal();
   });
 
-  // keyboard
   document.addEventListener('keydown', e => {
     if (!currentCarId) return;
-    const car  = availableCars.find(c => c.id === currentCarId);
-    const imgs = car.images.map(img => `${BASE}${car.folder}/${img}`);
+    const car  = availableCars.find(c => String(c.id) === String(currentCarId));
+    if (!car) return;
+    const imgs = getVehicleImages(car);
     if (e.key === 'Escape')     closeModal();
     if (e.key === 'ArrowLeft')  { currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length; updateModalImage(imgs, currentImgIndex); }
     if (e.key === 'ArrowRight') { currentImgIndex = (currentImgIndex + 1) % imgs.length; updateModalImage(imgs, currentImgIndex); }

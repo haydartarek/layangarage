@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Vehicle Dashboard | Layan Garage BV</title>
+  <link rel="icon" href="../assets/logo/favicon.ico">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="../css/admin.css?v=20260603-2">
+</head>
+<body class="admin-page">
+  <header class="admin-header">
+    <a class="admin-brand" href="../index.html" aria-label="Layan Garage BV website">
+      <img src="../assets/logo/logo.png" alt="Layan Garage BV" width="180" height="65">
+    </a>
+    <div class="admin-header-actions">
+      <a class="admin-btn admin-btn-ghost" href="../index.html#cars">Bekijk website</a>
+      <button class="admin-btn admin-btn-dark" id="admin-logout" type="button">Uitloggen</button>
+    </div>
+  </header>
+
+  <main class="admin-layout" id="admin-app" hidden>
+    <section class="admin-hero">
+      <div>
+        <p class="admin-kicker">Layan Garage BV</p>
+        <h1>Voertuigen beheren</h1>
+        <p class="admin-muted">Supabase is de bron voor voorraad, foto’s, status, zichtbaarheid en verkoopteksten.</p>
+      </div>
+      <div class="admin-hero-actions">
+        <button class="admin-btn admin-btn-primary" id="new-vehicle-btn" type="button">Nieuwe wagen</button>
+        <button class="admin-btn admin-btn-ghost" id="export-json-btn" type="button">Export JSON</button>
+        <button class="admin-btn admin-btn-ghost" id="export-csv-btn" type="button">Export CSV</button>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+      <aside class="admin-panel vehicle-list-panel" aria-labelledby="vehicle-list-title">
+        <div class="admin-panel-head">
+          <h2 id="vehicle-list-title">Voorraad</h2>
+          <span id="vehicle-count" class="admin-count">0</span>
+        </div>
+        <div id="vehicle-list" class="vehicle-admin-list"></div>
+      </aside>
+
+      <section class="admin-panel vehicle-editor-panel" aria-labelledby="vehicle-form-title">
+        <div class="admin-panel-head">
+          <h2 id="vehicle-form-title">Wagen details</h2>
+          <span id="editor-state" class="admin-pill">Nieuw</span>
+        </div>
+
+        <form id="vehicle-form" class="vehicle-form" novalidate>
+          <input type="hidden" name="id">
+
+          <div class="admin-form-grid">
+            <div class="admin-field admin-field-wide">
+              <label for="vehicle-title">Voertuigtitel</label>
+              <input id="vehicle-title" name="title" type="text" required maxlength="120">
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-brand">Brand</label>
+              <input id="vehicle-brand" name="brand" type="text" required maxlength="60">
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-model">Model</label>
+              <input id="vehicle-model" name="model" type="text" required maxlength="120">
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-year">Bouwjaar</label>
+              <input id="vehicle-year" name="year" type="number" min="1950" max="2100" required>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-price">Prijs EUR</label>
+              <input id="vehicle-price" name="price" type="number" min="0" step="1" required>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-mileage">Kilometerstand KM</label>
+              <input id="vehicle-mileage" name="mileage" type="number" min="0" step="1" required>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-fuel">Brandstof</label>
+              <select id="vehicle-fuel" name="fuelType" required data-other-select="fuelTypeOther">
+                <option value="">Selecteer brandstof</option>
+                <option value="Benzine">Benzine</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybride">Hybride</option>
+                <option value="Plug-in hybride">Plug-in hybride</option>
+                <option value="Elektrisch">Elektrisch</option>
+                <option value="LPG">LPG</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-fuel-other" name="fuelTypeOther" type="text" placeholder="Andere brandstof" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-engine">Motor</label>
+              <select id="vehicle-engine" name="engine" data-other-select="engineOther">
+                <option value="">Selecteer motor</option>
+                <option value="1.0 TSI">1.0 TSI</option>
+                <option value="1.2 TSI">1.2 TSI</option>
+                <option value="1.4 TSI">1.4 TSI</option>
+                <option value="1.5 TSI">1.5 TSI</option>
+                <option value="1.5 eTSI">1.5 eTSI</option>
+                <option value="1.5 EcoBoost">1.5 EcoBoost</option>
+                <option value="1.6 TDI">1.6 TDI</option>
+                <option value="2.0 TDI">2.0 TDI</option>
+                <option value="Elektrische motor">Elektrische motor</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-engine-other" name="engineOther" type="text" placeholder="Andere motor" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-transmission">Transmissie</label>
+              <select id="vehicle-transmission" name="transmission" data-other-select="transmissionOther">
+                <option value="">Selecteer transmissie</option>
+                <option value="Handgeschakeld">Handgeschakeld</option>
+                <option value="Automaat">Automaat</option>
+                <option value="Automaat DSG">Automaat DSG</option>
+                <option value="Automaat CVT">Automaat CVT</option>
+                <option value="Semi-automaat">Semi-automaat</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-transmission-other" name="transmissionOther" type="text" placeholder="Andere transmissie" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-euro">Euronorm</label>
+              <select id="vehicle-euro" name="euroNorm" data-other-select="euroNormOther">
+                <option value="">Selecteer euronorm</option>
+                <option value="Euro 4">Euro 4</option>
+                <option value="Euro 5">Euro 5</option>
+                <option value="Euro 6">Euro 6</option>
+                <option value="Euro 6b">Euro 6b</option>
+                <option value="Euro 6c">Euro 6c</option>
+                <option value="Euro 6d">Euro 6d</option>
+                <option value="Euro 6d-TEMP">Euro 6d-TEMP</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-euro-other" name="euroNormOther" type="text" placeholder="Andere euronorm" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-seats">Zitplaatsen</label>
+              <select id="vehicle-seats" name="seats" data-other-select="seatsOther">
+                <option value="">Selecteer zitplaatsen</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-seats-other" name="seatsOther" type="number" min="1" max="12" placeholder="Aantal zitplaatsen" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-condition">Conditie</label>
+              <select id="vehicle-condition" name="condition">
+                <option value="used">Gebruikt</option>
+                <option value="new">Nieuw</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-status">Verkoopstatus</label>
+              <select id="vehicle-status" name="status">
+                <option value="beschikbaar">Beschikbaar</option>
+                <option value="gereserveerd">Gereserveerd</option>
+                <option value="verkocht">Verkocht</option>
+              </select>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-order">Volgorde</label>
+              <input id="vehicle-order" name="displayOrder" type="number" min="0" step="1" value="0">
+            </div>
+            <div class="admin-field admin-check-field">
+              <label for="vehicle-visible">
+                <input id="vehicle-visible" name="isVisible" type="checkbox" checked>
+                Zichtbaar op website
+              </label>
+            </div>
+            <div class="admin-field admin-field-wide">
+              <label for="vehicle-description">Beschrijving</label>
+              <textarea id="vehicle-description" name="description" rows="5" maxlength="900"></textarea>
+            </div>
+          </div>
+
+          <section class="admin-subpanel">
+            <div class="admin-subpanel-head">
+              <h3>Opties</h3>
+              <button class="admin-btn admin-btn-small" id="add-feature-btn" type="button">Optie toevoegen</button>
+            </div>
+            <div id="feature-list" class="feature-list"></div>
+          </section>
+
+          <section class="admin-subpanel">
+            <div class="admin-subpanel-head">
+              <h3>Foto's</h3>
+              <span class="admin-muted">jpg, png, webp · max 5 MB</span>
+            </div>
+            <label class="image-dropzone" for="vehicle-images">
+              <input id="vehicle-images" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+              <span>Sleep foto's hier of klik om te uploaden</span>
+            </label>
+            <div id="image-list" class="image-admin-list"></div>
+          </section>
+
+          <div class="admin-form-actions">
+            <button class="admin-btn admin-btn-primary" type="submit">Opslaan</button>
+            <button class="admin-btn admin-btn-ghost" id="reset-form-btn" type="button">Reset</button>
+            <button class="admin-btn admin-btn-danger" id="delete-vehicle-btn" type="button">Verwijderen</button>
+          </div>
+
+          <p id="vehicle-form-message" class="admin-message" aria-live="polite"></p>
+        </form>
+      </section>
+    </section>
+
+    <section class="admin-panel social-panel" aria-labelledby="social-title">
+      <div class="admin-panel-head">
+        <h2 id="social-title">Socialmedia-generator</h2>
+        <span class="admin-pill">Facebook · Instagram · WhatsApp</span>
+      </div>
+      <div class="social-grid">
+        <article class="social-card">
+          <div class="admin-subpanel-head">
+            <h3>Facebook-bericht</h3>
+            <button class="admin-btn admin-btn-small" data-copy-target="facebook-output" type="button">Kopieer</button>
+          </div>
+          <textarea id="facebook-output" readonly rows="12"></textarea>
+        </article>
+        <article class="social-card">
+          <div class="admin-subpanel-head">
+            <h3>Instagram-tekst</h3>
+            <button class="admin-btn admin-btn-small" data-copy-target="instagram-output" type="button">Kopieer</button>
+          </div>
+          <textarea id="instagram-output" readonly rows="12"></textarea>
+        </article>
+        <article class="social-card">
+          <div class="admin-subpanel-head">
+            <h3>WhatsApp-bericht</h3>
+            <div class="social-actions">
+              <button class="admin-btn admin-btn-small" data-copy-target="whatsapp-output" type="button">Kopieer</button>
+              <a class="admin-btn admin-btn-small admin-btn-primary" id="open-whatsapp-link" target="_blank" rel="noopener noreferrer">Open WhatsApp</a>
+            </div>
+          </div>
+          <textarea id="whatsapp-output" readonly rows="12"></textarea>
+        </article>
+      </div>
+      <p id="copy-message" class="admin-message" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <main class="admin-layout" id="admin-blocked">
+    <section class="admin-panel">
+      <h1>Admin wordt geladen</h1>
+      <p class="admin-muted">Controle van Supabase sessie en configuratie...</p>
+      <p id="admin-guard-message" class="admin-message"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../js/supabase-config.js?v=20260603-1" defer></script>
+  <script src="../js/vehicle-store.js?v=20260603-2" defer></script>
+  <script src="../js/admin-social-generator.js?v=20260603-5" defer></script>
+  <script src="../js/admin-auth.js?v=20260603-1" defer></script>
+  <script src="../js/admin-vehicles.js?v=20260603-2" defer></script>
+</body>
+</html>

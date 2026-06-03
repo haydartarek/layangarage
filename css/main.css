@@ -1210,6 +1210,18 @@ section {
   gap: 28px;
 }
 
+.cars-loading,
+.cars-empty {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(255, 139, 16, 0.18);
+  border-radius: var(--radius-inner);
+  background: var(--brand-soft);
+  color: var(--black);
+  font-weight: 800;
+  padding: var(--space-lg);
+  text-align: center;
+}
+
 .vehicle-card {
   position: relative;
   min-height: 520px;

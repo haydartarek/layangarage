@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Admin Login | Layan Garage BV</title>
+  <link rel="icon" href="../assets/logo/favicon.ico">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="../css/admin.css?v=20260603-2">
+</head>
+<body class="admin-auth-page">
+  <main class="admin-auth-shell">
+    <section class="admin-auth-card" aria-labelledby="login-title">
+      <a class="admin-logo" href="../index.html" aria-label="Terug naar website">
+        <img src="../assets/logo/logo.png" alt="Layan Garage BV" width="220" height="80">
+      </a>
+      <p class="admin-kicker">Beveiligde toegang</p>
+      <h1 id="login-title">Vehicle Admin Panel</h1>
+      <p class="admin-muted">Log in met het Supabase admin-account om voertuigen, afbeeldingen en verkoopteksten te beheren.</p>
+
+      <form class="admin-form" id="admin-login-form" novalidate>
+        <div class="admin-field">
+          <label for="admin-email">E-mail</label>
+          <input id="admin-email" name="email" type="email" autocomplete="email" required placeholder="admin@layangaragebv.be">
+          <p class="admin-field-error" data-error-for="email"></p>
+        </div>
+
+        <div class="admin-field">
+          <label for="admin-password">Wachtwoord</label>
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required placeholder="Uw wachtwoord">
+          <p class="admin-field-error" data-error-for="password"></p>
+        </div>
+
+        <button class="admin-btn admin-btn-primary" type="submit">Inloggen</button>
+        <p id="admin-login-message" class="admin-message" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="../js/supabase-config.js?v=20260603-1" defer></script>
+  <script src="../js/vehicle-store.js?v=20260603-2" defer></script>
+  <script src="../js/admin-auth.js?v=20260603-1" defer></script>
+</body>
+</html>
