@@ -1,0 +1,541 @@
+- generic [active] [ref=e3]:
+  - img
+  - generic [ref=e4]:
+    - generic [ref=e509]:
+      - banner:
+        - generic [ref=e512]:
+          - generic [ref=e513]:
+            - link "Refer & earn up to $265" [ref=e515] [cursor=pointer]:
+              - /url: /referrals
+              - img [ref=e516]
+              - generic [ref=e518]: Refer & earn up to $265
+            - button "Ask AI" [ref=e520] [cursor=pointer]:
+              - img [ref=e521]
+              - generic [ref=e523]: Ask AI
+            - generic [ref=e525]:
+              - button [ref=e526] [cursor=pointer]:
+                - img [ref=e528]
+              - button [ref=e530] [cursor=pointer]:
+                - img [ref=e532]
+            - button "Search" [ref=e538] [cursor=pointer]:
+              - img [ref=e539]
+            - button "Open menu" [ref=e543] [cursor=pointer]:
+              - img [ref=e544]
+          - button [ref=e549] [cursor=pointer]:
+            - img [ref=e551]
+      - generic [ref=e558]:
+        - banner [ref=e559]:
+          - navigation "Breadcrumb" [ref=e560]:
+            - list [ref=e561]:
+              - listitem [ref=e562]:
+                - link [ref=e563] [cursor=pointer]:
+                  - /url: /?amplitudeLocation=breadcrumbs
+                  - img [ref=e564]
+                - img [ref=e566]
+              - listitem [ref=e568]:
+                - link "Domain portfolio" [ref=e569] [cursor=pointer]:
+                  - /url: /domains?redirectLocation=breadcrumbs
+                  - generic [ref=e570]: Domain portfolio
+                - img [ref=e571]
+              - listitem [ref=e573]:
+                - generic [ref=e575]: layangaragebv.be
+          - heading "Domain Overview" [level=1] [ref=e579]
+        - main [ref=e581]:
+          - generic [ref=e583]:
+            - 'alert "warning notification: notification" [ref=e584]':
+              - generic [ref=e585]:
+                - img [ref=e586]
+                - generic [ref=e588]:
+                  - strong [ref=e589]: Auto-renewal is off for this domain.
+                  - text: To keep this domain and your services active, turn auto-renewal on.
+                - button "Turn on auto-renewal" [ref=e590] [cursor=pointer]:
+                  - generic [ref=e591]: Turn on auto-renewal
+            - generic [ref=e593]:
+              - region [ref=e594]:
+                - generic [ref=e595]:
+                  - generic [ref=e596]:
+                    - link "layangaragebv.be" [ref=e597] [cursor=pointer]:
+                      - /url: https://layangaragebv.be
+                      - heading "layangaragebv.be" [level=2] [ref=e599]
+                      - img [ref=e600]
+                    - generic [ref=e603]: Active
+                  - generic [ref=e604]:
+                    - generic [ref=e606]:
+                      - img [ref=e607]
+                      - img [ref=e646]
+                    - generic [ref=e648]:
+                      - generic [ref=e649]:
+                        - generic [ref=e650]: Expiration date
+                        - img [ref=e652]
+                      - heading "2027-06-30" [level=2] [ref=e654]
+                  - generic [ref=e655]:
+                    - generic [ref=e656]: Auto-renewal
+                    - switch [ref=e659] [cursor=pointer]
+              - region [ref=e660]:
+                - generic [ref=e661]:
+                  - generic [ref=e662]:
+                    - generic [ref=e663]:
+                      - heading "DNS/Nameservers" [level=3] [ref=e664]
+                      - generic [ref=e667] [cursor=pointer]: Edit
+                    - generic [ref=e668]:
+                      - heading "ns53.be" [level=3] [ref=e669]
+                      - heading "ns53.io" [level=3] [ref=e670]
+                  - generic [ref=e671]:
+                    - generic [ref=e672]:
+                      - heading "Domain Ownership" [level=3] [ref=e673]
+                      - generic [ref=e675] [cursor=pointer]: View all
+                    - generic [ref=e676]:
+                      - heading "Email:" [level=4] [ref=e677]
+                      - paragraph [ref=e678]: info@layangaragebv.be
+                    - generic [ref=e679]:
+                      - heading "First name:" [level=4] [ref=e680]
+                      - paragraph [ref=e681]: Ahmed
+                    - generic [ref=e682]:
+                      - heading "Last name:" [level=4] [ref=e683]
+                      - paragraph [ref=e684]: Al-Masri
+                    - generic [ref=e685]:
+                      - heading "Phone number:" [level=4] [ref=e686]
+                      - paragraph [ref=e687]: +32 486890002
+                  - generic [ref=e688]:
+                    - heading "Transfer" [level=3] [ref=e689]
+                    - generic [ref=e690]:
+                      - generic [ref=e691]:
+                        - heading "Domain lock" [level=4] [ref=e692]
+                        - img [ref=e694]
+                      - generic [ref=e697] [cursor=pointer]:
+                        - checkbox [disabled]
+                    - generic [ref=e700]:
+                      - heading "Authorization code" [level=4] [ref=e701]
+                      - button "Get code" [ref=e702] [cursor=pointer]:
+                        - heading "Get code" [level=4] [ref=e703]
+              - region [ref=e705]:
+                - generic [ref=e706]:
+                  - heading "Your domain checklist" [level=3] [ref=e707]
+                  - generic [ref=e708]:
+                    - progressbar [ref=e709]
+                    - generic [ref=e710]: 1/3
+                - generic [ref=e713]:
+                  - img [ref=e714]
+                  - heading "Register your domain" [level=4] [ref=e716]
+                - generic [ref=e717]:
+                  - generic [ref=e718]:
+                    - generic [ref=e719]:
+                      - img [ref=e720]
+                      - heading "Create or migrate your website" [level=4] [ref=e722]
+                    - img [ref=e724]
+                  - generic [ref=e727]:
+                    - generic [ref=e728]:
+                      - heading "Create a site that's truly yours - simple to build, easy to publish, and ready to share anywhere." [level=4] [ref=e729]
+                      - button "Get started" [ref=e730] [cursor=pointer]:
+                        - generic [ref=e731]: Get started
+                    - img [ref=e732]
+                - generic [ref=e733]:
+                  - generic [ref=e734]:
+                    - generic [ref=e735]:
+                      - img [ref=e736]
+                      - heading "Get a business @layangaragebv.be email account" [level=4] [ref=e738]
+                    - img [ref=e740]
+                  - generic [ref=e742]:
+                    - generic [ref=e743]:
+                      - heading "Build your brand with a professional, domain-based email" [level=4] [ref=e744]
+                      - button "Try for free" [ref=e745] [cursor=pointer]:
+                        - generic [ref=e746]: Try for free
+                    - img [ref=e747]
+              - region [ref=e749]:
+                - heading "Protect your brand" [level=2] [ref=e750]
+                - generic [ref=e751]: Secure your brand name with different domain extensions.
+                - generic [ref=e752]:
+                  - generic [ref=e753]:
+                    - heading "layangaragebv.online" [level=3] [ref=e754]:
+                      - generic [ref=e755]: layangaragebv
+                      - generic [ref=e756]: .online
+                    - generic [ref=e759]: Save 97%
+                  - generic [ref=e760]:
+                    - generic [ref=e762]:
+                      - paragraph [ref=e763]: $35.99
+                      - heading "$0.99/1st yr" [level=3] [ref=e764]
+                    - button "Buy now" [ref=e765] [cursor=pointer]:
+                      - generic [ref=e766]: Buy now
+                - generic [ref=e769] [cursor=pointer]: Explore more extensions
+              - region [ref=e770]:
+                - heading "Tools" [level=2] [ref=e772]
+                - list [ref=e774]:
+                  - listitem [ref=e775]:
+                    - img [ref=e778]
+                    - generic [ref=e780]:
+                      - generic [ref=e783]: Create a one page site in minutes
+                      - generic [ref=e784]: Go live with a coming soon or link in bio site.
+                    - button "Create site" [ref=e788] [cursor=pointer]:
+                      - generic [ref=e789]: Create site
+                  - listitem [ref=e791]:
+                    - img [ref=e794]
+                    - generic [ref=e796]:
+                      - generic [ref=e799]: Redirect your domain
+                      - generic [ref=e800]: Redirect visitors to another website or social media platform like Facebook.
+                    - button "Redirect" [ref=e804] [cursor=pointer]:
+                      - generic [ref=e805]: Redirect
+                  - listitem [ref=e807]:
+                    - img [ref=e810]
+                    - generic [ref=e812]:
+                      - generic [ref=e815]: Discover how much your domain is worth
+                      - generic [ref=e817]:
+                        - text: Let AI estimate the value of
+                        - strong [ref=e818]: layangaragebv.be
+                        - text: – it might be more valuable than you think.
+                    - button "Estimate value" [ref=e822] [cursor=pointer]:
+                      - generic [ref=e823]: Estimate value
+                  - listitem [ref=e825]:
+                    - img [ref=e828]
+                    - generic [ref=e830]:
+                      - generic [ref=e833]: Share your domain as a QR code
+                      - generic [ref=e834]: Share a link to your domain in a scannable format.
+                    - button "Generate QR code" [ref=e838] [cursor=pointer]:
+                      - generic [ref=e839]: Generate QR code
+                  - listitem [ref=e841]:
+                    - img [ref=e844]
+                    - generic [ref=e846]:
+                      - generic [ref=e849]: Generate a logo for your brand
+                      - generic [ref=e850]: Use Hostinger AI logo maker to generate a unique logo.
+                    - link "Generate logo" [ref=e854] [cursor=pointer]:
+                      - /url: https://agents.hostinger.com/agents/business-advisor?skill=design-logo
+                      - generic [ref=e855]: Generate logo
+                      - img [ref=e856]
+              - generic [ref=e860]:
+                - generic [ref=e861]:
+                  - generic [ref=e863]: NEW
+                  - heading "Build web apps or sites" [level=2] [ref=e864]
+                  - paragraph [ref=e865]: Chat with AI and watch your ideas come to life. Hostinger Horizons is free to try once.
+                - button "Try now" [ref=e866] [cursor=pointer]:
+                  - generic [ref=e867]: Try now
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img "hostinger"
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - listitem:
+                    - generic:
+                      - generic:
+                        - button "Overview Overview":
+                          - button "Overview":
+                            - img
+                          - generic: Overview
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - navigation:
+                        - list:
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "Home Home":
+                                  - /url: /
+                                  - button "Home":
+                                    - img
+                                  - generic: Home
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - button "Websites Websites":
+                                  - button "Websites":
+                                    - img
+                                  - generic: Websites
+                          - generic:
+                            - listitem:
+                              - list:
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "All websites":
+                                        - /url: /websites
+                                        - generic: All websites
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "WordPress":
+                                        - /url: /websites?websiteType=wordpress
+                                        - generic: WordPress
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Horizons":
+                                        - /url: /websites?websiteType=horizons
+                                        - generic: Horizons
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Website Builder":
+                                        - /url: /websites?websiteType=builder
+                                        - generic: Website Builder
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Node.js":
+                                        - /url: /websites?websiteType=nodejs
+                                        - generic: Node.js
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "PHP/HTML":
+                                        - /url: /websites?websiteType=other
+                                        - generic: PHP/HTML
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Migrations":
+                                        - /url: /websites/migrations
+                                        - generic: Migrations
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - button "Domains Domains":
+                                  - button "Domains":
+                                    - img
+                                  - generic: Domains
+                          - generic:
+                            - listitem:
+                              - list:
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Domain portfolio":
+                                        - /url: /domains
+                                        - generic: Domain portfolio
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Get a new domain":
+                                        - /url: /domains/domain-checker
+                                        - generic: Get a new domain
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Transfers":
+                                        - /url: /domains/transfers
+                                        - generic: Transfers
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Contact profiles":
+                                        - /url: /domains/contact-profiles
+                                        - generic: Contact profiles
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "Emails Emails":
+                                  - /url: /emails
+                                  - button "Emails":
+                                    - img
+                                  - generic: Emails
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - button "More services More services":
+                                  - button "More services":
+                                    - img
+                                  - generic: More services
+                          - generic:
+                            - listitem:
+                              - list:
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Marketplace":
+                                        - /url: /marketplace
+                                        - generic: Marketplace
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "AI tools":
+                                        - /url: /ai-tools
+                                        - generic: AI tools
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Dark web monitor Dark web monitor":
+                                        - /url: /dark-web-monitor
+                                        - button "Dark web monitor":
+                                          - img
+                                        - generic: Dark web monitor
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "nexos.ai credits":
+                                        - /url: /nexos-credits
+                                        - generic: nexos.ai credits
+                                - listitem:
+                                  - generic:
+                                    - generic:
+                                      - link "Oxylabs AI Studio credits":
+                                        - /url: /oxylabs-credits
+                                        - generic: Oxylabs AI Studio credits
+                    - generic:
+                      - navigation:
+                        - list:
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - button "Horizons Horizons":
+                                  - button "Horizons":
+                                    - img
+                                  - generic: Horizons
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "Reach Reach":
+                                  - /url: /email-marketing
+                                  - button "Reach":
+                                    - img
+                                  - generic: Reach
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "eComm eComm":
+                                  - /url: /ecommerce
+                                  - button "eComm":
+                                    - img
+                                  - generic: eComm
+                          - generic:
+                            - listitem:
+                              - list
+                    - generic:
+                      - navigation:
+                        - list:
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - button "Agents Agents":
+                                  - button "Agents":
+                                    - img
+                                  - generic: Agents
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "OpenClaw OpenClaw":
+                                  - /url: /applications/openclaw
+                                  - button "OpenClaw":
+                                    - img
+                                  - generic: OpenClaw
+                          - generic:
+                            - listitem:
+                              - list
+                    - generic:
+                      - navigation:
+                        - list:
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "VPS VPS":
+                                  - /url: /vps
+                                  - button "VPS":
+                                    - img
+                                  - generic: VPS
+                          - generic:
+                            - listitem:
+                              - list
+                          - listitem:
+                            - generic:
+                              - generic:
+                                - link "API API":
+                                  - /url: /api
+                                  - button "API":
+                                    - img
+                                  - generic: API
+                          - generic:
+                            - listitem:
+                              - list
+          - generic:
+            - generic:
+              - complementary:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - listitem:
+                          - generic:
+                            - generic:
+                              - menuitem "Main menu":
+                                - generic:
+                                  - img
+                                - generic:
+                                  - generic: Main menu
+                    - generic:
+                      - generic:
+                        - generic:
+                          - navigation:
+                            - list:
+                              - listitem:
+                                - generic:
+                                  - generic:
+                                    - menuitem "Domain Overview":
+                                      - generic:
+                                        - img
+                                      - generic:
+                                        - generic: Domain Overview
+                              - generic:
+                                - listitem:
+                                  - list
+                              - listitem:
+                                - generic:
+                                  - generic:
+                                    - menuitem "DNS / Nameservers":
+                                      - generic:
+                                        - img
+                                      - generic:
+                                        - generic: DNS / Nameservers
+                              - generic:
+                                - listitem:
+                                  - list
+                              - listitem:
+                                - generic:
+                                  - generic:
+                                    - menuitem "Domain Ownership":
+                                      - generic:
+                                        - img
+                                      - generic:
+                                        - generic: Domain Ownership
+                              - generic:
+                                - listitem:
+                                  - list
+                              - listitem:
+                                - generic:
+                                  - generic:
+                                    - menuitem "Brand protection":
+                                      - generic:
+                                        - img
+                                      - generic:
+                                        - generic: Brand protection
+                              - generic:
+                                - listitem:
+                                  - list
+                    - generic:
+                      - generic:
+                        - listitem:
+                          - generic:
+                            - generic:
+                              - menuitem "Give feedback":
+                                - generic:
+                                  - img
+                                - generic:
+                                  - generic: Give feedback

@@ -1,0 +1,8 @@
+- generic [ref=e3]:
+  - heading "Suspicious Login Detected" [level=1] [ref=e4]
+  - generic [ref=e5]:
+    - generic [ref=e6]: For security reasons, we need to verify your identity. A unique code has been sent to your registered email address. Please check your inbox, retrieve the code, and enter it in the field below to complete the login process. This additional step ensures your account remains secure. If you do not see the email in your inbox, please check your spam or junk folder.
+    - generic [ref=e7]:
+      - textbox "Authentication Code" [active] [ref=e8]
+      - button "Verify" [ref=e9] [cursor=pointer]
+    - button "Resend Code" [ref=e11] [cursor=pointer]

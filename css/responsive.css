@@ -50,6 +50,24 @@
     max-width: 520px;
   }
 
+  .depannage-card {
+    grid-template-columns: 1fr;
+  }
+
+  .depannage-media {
+    min-height: 360px;
+    order: -1;
+  }
+
+  .depannage-media::after {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 52%, rgba(17, 17, 17, .86) 100%);
+  }
+
+  .depannage-content {
+    padding: 0 clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 4vw, 2rem);
+    margin-top: -86px;
+  }
+
   .main-nav,
   .header-cta {
     display: none;
@@ -310,7 +328,8 @@
     inset-block: 18px;
   }
 
-  .eyebrow {
+  .hero-inner .about-eyebrow,
+  .legal-hero .about-eyebrow {
     margin-bottom: 12px;
     padding: 7px 11px;
     font-size: .78rem;
@@ -600,22 +619,52 @@
     font-size: .8rem;
   }
 
-  .inventory-cta {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
+  .depannage-card {
     border-radius: 22px;
   }
 
-  .inventory-cta-icon {
-    width: 46px;
-    height: 46px;
-    flex-basis: 46px;
-    border-radius: 15px;
+  .depannage-media {
+    min-height: 300px;
   }
 
-  .inventory-cta .btn {
-    width: 100%;
+  .depannage-content {
+    gap: 13px;
+    padding: 0 1.25rem 1.35rem;
+    margin-top: -72px;
+  }
+
+  .depannage-content h2 {
+    max-width: 12ch;
+    font-size: clamp(1.8rem, 9vw, 2.55rem);
+    line-height: 1;
+  }
+
+  .depannage-content p {
+    font-size: .92rem;
+    line-height: 1.65;
+  }
+
+  .depannage-points {
+    gap: 7px;
+  }
+
+  .depannage-points li {
+    padding-left: 24px;
+    font-size: .86rem;
+  }
+
+  .depannage-points li::before {
+    width: 12px;
+    height: 12px;
+  }
+
+  .depannage-actions {
+    gap: 8px;
+  }
+
+  .depannage-actions .btn {
+    flex: 1 1 180px;
+    min-height: 44px;
   }
 
   .cta-copy {
@@ -664,7 +713,7 @@
     border-radius: 22px;
   }
 
-  .hours-kicker {
+  .hours-card .about-eyebrow {
     margin-bottom: 12px;
   }
 
@@ -989,6 +1038,49 @@
     font-size: .82rem;
   }
 
+  .depannage-card {
+    border-radius: 18px;
+  }
+
+  .depannage-media {
+    min-height: 240px;
+  }
+
+  .depannage-content {
+    gap: 11px;
+    padding: 0 1rem 1.1rem;
+    margin-top: -58px;
+  }
+
+  .depannage-content .about-eyebrow {
+    padding: 6px 10px;
+    font-size: .72rem;
+  }
+
+  .depannage-content h2 {
+    font-size: clamp(1.55rem, 10vw, 2rem);
+  }
+
+  .depannage-content p {
+    font-size: .88rem;
+    line-height: 1.58;
+  }
+
+  .depannage-points li {
+    font-size: .8rem;
+    line-height: 1.35;
+  }
+
+  .depannage-actions {
+    flex-direction: column;
+  }
+
+  .depannage-actions .btn {
+    width: 100%;
+    flex: 0 0 auto;
+    min-height: 42px;
+  }
+
   .site-header .header-shell {
     min-height: 56px;
   }
@@ -1056,7 +1148,8 @@
     padding: .8rem;
   }
 
-  .eyebrow {
+  .hero-inner .about-eyebrow,
+  .legal-hero .about-eyebrow {
     margin-bottom: 9px;
     padding: 6px 10px;
     font-size: .72rem;

@@ -1,0 +1,2 @@
+[     983ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/emails:0
+[    2443ms] [WARNING] Amplitude Logger [Warn]: Event not tracked, no destination plugins on the instance @ https://hpanel.hostinger.com/assets/chunk/vendor.0BjsEgew.js:255

@@ -2,6 +2,125 @@
    SEO | JSON-LD Schema Injection
    =========================== */
 
+function appendJsonLdSchema(schema, markerName) {
+    const existingScript = document.querySelector(`script[data-schema="${markerName}"]`);
+    if (existingScript) existingScript.remove();
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.setAttribute("data-schema", markerName);
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+}
+
+/**
+ * Inject static site schemas
+ */
+function injectStaticSchemaScripts() {
+    appendJsonLdSchema({
+        "@context": "https://schema.org",
+        "@type": "AutoDealer",
+        "name": "Layan Garage BV",
+        "url": "https://haydartarek.github.io/layangarage/",
+        "logo": "https://haydartarek.github.io/layangarage/assets/logo/logo.png",
+        "image": "https://haydartarek.github.io/layangarage/assets/logo/logo.png",
+        "description": "Tweedehands auto's kopen, verkopen en herstellen in Beveren, Antwerpen en Waasland.",
+        "telephone": "+32486890002",
+        "email": "info@layangaragebv.be",
+        "vatID": "BE0770476641",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Albert Panisstraat 130",
+            "postalCode": "9120",
+            "addressLocality": "Beveren-Waas",
+            "addressRegion": "Oost-Vlaanderen",
+            "addressCountry": "BE"
+        },
+        "areaServed": [
+            "Antwerpen",
+            "Beveren",
+            "Gent",
+            "Mechelen",
+            "Sint-Niklaas",
+            "Waasland",
+            "Temse",
+            "Lokeren"
+        ],
+        "priceRange": "$$",
+        "openingHours": "Mo-Sa 09:00-18:00"
+    }, "auto-dealer");
+
+    appendJsonLdSchema({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Kan ik mijn wagen verkopen bij Layan Garage BV?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Ja, wij kopen tweedehands wagens aan. Breng uw wagen langs of bel ons voor een snelle en eerlijke beoordeling."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Bieden jullie onderhoud aan voor alle merken?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Ja, Layan Garage BV verzorgt onderhoud, diagnose en herstellingen voor alle merken personenwagens en lichte bedrijfswagens."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Kan ik een afspraak maken?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Ja, u kunt bellen op 0486 89 00 02 of ons contactformulier invullen voor een afspraak."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Werken jullie op zaterdag?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Ja, wij zijn open op zaterdag van 09:00 tot 18:00."
+                }
+            }
+        ]
+    }, "faq-page");
+}
+
+/**
+ * Inject Service schema for Depannage
+ */
+function injectDepannageServiceSchema() {
+    const depannageSection = document.getElementById("depannage");
+    if (!depannageSection) return;
+
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Depannage en pechhulp",
+        "serviceType": "Depannage, pechhulp en takeldienst",
+        "provider": {
+            "@type": "AutoDealer",
+            "name": "Layan Garage BV",
+            "telephone": "+32486890002"
+        },
+        "areaServed": [
+            "Beveren-Waas",
+            "Antwerpen",
+            "Waasland",
+            "Sint-Niklaas",
+            "Temse",
+            "Lokeren"
+        ],
+        "description": "Depannage en praktische pechhulp voor bestuurders met panne, startproblemen of voertuigen die niet veilig verder kunnen rijden."
+    };
+
+    appendJsonLdSchema(schema, "depannage-service");
+}
+
 /**
  * Inject Product schema for each vehicle
  */
@@ -12,7 +131,7 @@ function injectVehicleSchemaScripts() {
     }
 
     document
-        .querySelectorAll('script[data-vehicle-schema="true"]')
+        .querySelectorAll('script[data-schema^="vehicle-"]')
         .forEach((existingScript) => existingScript.remove());
 
     vehicles.forEach((car) => {
@@ -59,11 +178,7 @@ function injectVehicleSchemaScripts() {
             ]
         };
 
-        const script = document.createElement("script");
-        script.type = "application/ld+json";
-        script.setAttribute("data-vehicle-schema", "true");
-        script.textContent = JSON.stringify(schema);
-        document.head.appendChild(script);
+        appendJsonLdSchema(schema, `vehicle-${car.slug || car.folder || car.id}`);
     });
 }
 
@@ -71,6 +186,8 @@ function injectVehicleSchemaScripts() {
  * Run on DOM ready
  */
 document.addEventListener("DOMContentLoaded", () => {
+    injectStaticSchemaScripts();
+    injectDepannageServiceSchema();
     injectVehicleSchemaScripts();
 });
 
