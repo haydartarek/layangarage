@@ -18,6 +18,17 @@
     if (target) target.textContent = text || '';
   }
 
+  function loginErrorMessage(error) {
+    const message = `${error?.message || ''} ${error?.code || ''} ${error?.status || ''}`.toLowerCase();
+    if (message.includes('invalid login') || message.includes('invalid_credentials') || message.includes('400')) {
+      return 'E-mail of wachtwoord is niet correct.';
+    }
+    if (message.includes('email not confirmed')) {
+      return 'Dit admin-account is nog niet bevestigd.';
+    }
+    return error?.message || 'Inloggen is mislukt.';
+  }
+
   function validateLogin(form) {
     const email = form.email.value.trim();
     const password = form.password.value;
@@ -75,7 +86,7 @@
         if (error) throw error;
         window.location.href = 'dashboard.html';
       } catch (error) {
-        setMessage(message, error.message || 'Inloggen is mislukt.', 'error');
+        setMessage(message, loginErrorMessage(error), 'error');
       } finally {
         submit.disabled = false;
       }

@@ -293,8 +293,8 @@ function getRequestedVehicleSlug() {
 }
 
 function redirectMissingVehicleToCars() {
-  const indexPath = window.location.pathname.replace(/[^/]*$/, 'index.html');
-  window.location.replace(`${indexPath}#cars`);
+  const rootPath = window.location.pathname.replace(/[^/]*$/, '');
+  window.location.replace(`${rootPath || '/'}#cars`);
 }
 
 function openRequestedVehicleFromUrl() {

@@ -25,7 +25,7 @@
   }
 
   function vehicleUrl(vehicle) {
-    if (vehicle.isVisible === false) return `${CONTACT.website}/index.html#cars`;
+    if (vehicle.isVisible === false) return `${CONTACT.website}/#cars`;
     return `${CONTACT.website}/#wagen/${encodeURIComponent(slug(vehicle))}`;
   }
 
