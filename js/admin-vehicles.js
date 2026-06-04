@@ -110,7 +110,7 @@
 
     els.vehicleList.innerHTML = state.vehicles.map(vehicle => `
       <button class="vehicle-admin-item${String(vehicle.id) === String(state.selectedId) ? ' active' : ''}" type="button" data-select-vehicle="${vehicle.id}">
-        <img src="${normalizeImageForAdmin(imageSrc(vehicle))}" alt="" loading="lazy" onerror="this.src='../assets/images/hero-garage.jpg'">
+        <img src="${normalizeImageForAdmin(imageSrc(vehicle))}" alt="${escapeHtml(title(vehicle))}" loading="lazy" onerror="this.src='../assets/images/hero-garage.jpg'">
         <span>
           <span class="vehicle-admin-title">${escapeHtml(title(vehicle))}</span>
           <span class="vehicle-admin-meta">${escapeHtml(vehicle.price || 'Prijs op aanvraag')} · ${escapeHtml(vehicle.status || '')} · ${vehicle.isVisible ? 'zichtbaar' : 'verborgen'}</span>
@@ -250,7 +250,21 @@
     $('facebook-output').value = generated.facebook;
     $('instagram-output').value = generated.instagram;
     $('whatsapp-output').value = generated.whatsapp;
+
+    const facebookLink = $('open-facebook-link');
+    const instagramLink = $('open-instagram-link');
     const whatsappLink = $('open-whatsapp-link');
+
+    if (facebookLink) {
+      facebookLink.href = 'https://business.facebook.com/latest/composer';
+      facebookLink.toggleAttribute('aria-disabled', empty);
+    }
+
+    if (instagramLink) {
+      instagramLink.href = 'https://www.instagram.com/create/select/';
+      instagramLink.toggleAttribute('aria-disabled', empty);
+    }
+
     whatsappLink.href = empty ? '#' : `https://wa.me/32486890002?text=${encodeURIComponent(generated.whatsapp)}`;
     whatsappLink.toggleAttribute('aria-disabled', empty);
   }
@@ -399,17 +413,72 @@
     download('layan-garage-vehicles.csv', csv, 'text/csv;charset=utf-8');
   }
 
-  async function copyGenerated(targetId) {
-    const target = $(targetId);
+  async function writeClipboard(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const helper = document.createElement('textarea');
+    helper.value = text;
+    helper.setAttribute('readonly', '');
+    helper.style.position = 'fixed';
+    helper.style.left = '-9999px';
+    document.body.appendChild(helper);
+    helper.select();
+    document.execCommand('copy');
+    helper.remove();
+  }
+
+  function copyMessage(text, type = 'success') {
     const messageEl = $('copy-message');
-    if (!target?.value) return;
-    await navigator.clipboard.writeText(target.value);
-    messageEl.textContent = 'Tekst gekopieerd';
-    messageEl.className = 'admin-message success';
-    window.setTimeout(() => {
+    messageEl.textContent = text;
+    messageEl.className = `admin-message ${type}`.trim();
+    window.clearTimeout(copyMessage.timer);
+    copyMessage.timer = window.setTimeout(() => {
       messageEl.textContent = '';
       messageEl.className = 'admin-message';
-    }, 2200);
+    }, 3600);
+  }
+
+  async function copyGenerated(targetId) {
+    const target = $(targetId);
+    if (!target?.value) return;
+    try {
+      await writeClipboard(target.value);
+      copyMessage('Tekst gekopieerd.');
+    } catch (error) {
+      copyMessage('Kopiëren is mislukt. Selecteer de tekst en kopieer handmatig.', 'error');
+    }
+  }
+
+  async function openSocialLink(event, link) {
+    const targetId = link.dataset.copyTarget;
+    const target = targetId ? $(targetId) : null;
+    if (link.getAttribute('aria-disabled') === 'true' || !target?.value) {
+      event.preventDefault();
+      copyMessage('Selecteer of vul eerst een wagen in.', 'error');
+      return;
+    }
+
+    event.preventDefault();
+    const copyPromise = writeClipboard(target.value);
+    const openedWindow = window.open(link.href, '_blank', 'noopener,noreferrer');
+
+    try {
+      await copyPromise;
+      const platform = link.dataset.openSocial || 'socialmedia';
+      const label = {
+        facebook: 'Facebook Business Suite',
+        instagram: 'Instagram',
+        whatsapp: 'WhatsApp Business'
+      }[platform] || 'socialmedia';
+
+      const popupNote = openedWindow ? '' : ' Sta pop-ups toe als het venster niet opent.';
+      copyMessage(`Tekst gekopieerd. ${label} wordt geopend. Upload de foto’s handmatig in het bericht.${popupNote}`);
+    } catch (error) {
+      copyMessage('Kopiëren is mislukt. Kopieer de tekst handmatig en probeer opnieuw.', 'error');
+    }
   }
 
   function bindEvents() {
@@ -448,6 +517,12 @@
     });
 
     document.addEventListener('click', event => {
+      const socialLink = event.target.closest('[data-open-social]');
+      if (socialLink) {
+        openSocialLink(event, socialLink);
+        return;
+      }
+
       const copyButton = event.target.closest('[data-copy-target]');
       if (copyButton) copyGenerated(copyButton.dataset.copyTarget);
     });

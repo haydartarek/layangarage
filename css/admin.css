@@ -211,6 +211,12 @@ h3 {
   transform: none;
 }
 
+.admin-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+  pointer-events: auto;
+}
+
 .admin-btn-primary {
   background: var(--brand);
   color: var(--white);
@@ -282,6 +288,10 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.social-actions {
+  justify-content: flex-end;
 }
 
 .admin-layout {
@@ -519,6 +529,14 @@ h3 {
   border-radius: var(--radius-inner);
   background: var(--gray-50);
   padding: 16px;
+}
+
+.social-card .admin-subpanel-head {
+  align-items: flex-start;
+}
+
+.social-card .social-actions .admin-btn {
+  white-space: nowrap;
 }
 
 .social-card textarea {

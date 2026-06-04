@@ -20,11 +20,12 @@ function injectStaticSchemaScripts() {
     appendJsonLdSchema({
         "@context": "https://schema.org",
         "@type": "AutoDealer",
+        "additionalType": "https://schema.org/AutoRepair",
         "name": "Layan Garage BV",
-        "url": "https://haydartarek.github.io/layangarage/",
-        "logo": "https://haydartarek.github.io/layangarage/assets/logo/logo.png",
-        "image": "https://haydartarek.github.io/layangarage/assets/logo/logo.png",
-        "description": "Tweedehands auto's kopen, verkopen en herstellen in Beveren, Antwerpen en Waasland.",
+        "url": "https://layangaragebv.be/",
+        "logo": "https://layangaragebv.be/assets/logo/logo.png",
+        "image": "https://layangaragebv.be/assets/logo/logo.png",
+        "description": "Layan Garage BV in Beveren-Waas helpt klanten met tweedehands wagens, onderhoud, diagnose, herstellingen, banden, remmen en airconditioning in de regio Antwerpen en Waasland.",
         "telephone": "+32486890002",
         "email": "info@layangaragebv.be",
         "vatID": "BE0770476641",
@@ -37,14 +38,12 @@ function injectStaticSchemaScripts() {
             "addressCountry": "BE"
         },
         "areaServed": [
+            "Beveren-Waas",
             "Antwerpen",
-            "Beveren",
-            "Gent",
-            "Mechelen",
-            "Sint-Niklaas",
             "Waasland",
-            "Temse",
-            "Lokeren"
+            "Sint-Niklaas",
+            "Mechelen",
+            "Gent"
         ],
         "priceRange": "$$",
         "openingHours": "Mo-Sa 09:00-18:00"
@@ -124,8 +123,8 @@ function injectDepannageServiceSchema() {
 /**
  * Inject Product schema for each vehicle
  */
-function injectVehicleSchemaScripts() {
-    const vehicles = window.availableCars;
+function injectVehicleSchemaScripts(vehicleList) {
+    const vehicles = Array.isArray(vehicleList) ? vehicleList : window.availableCars;
     if (!Array.isArray(vehicles) || !vehicles.length) {
         return;
     }
@@ -145,12 +144,15 @@ function injectVehicleSchemaScripts() {
             ? mainImage
             : `https://layangaragebv.be/${mainImage}`;
         const title = car.title || `${car.brand} ${car.model}`.trim();
+        const vehicleDescription = car.description && String(car.description).trim()
+            ? String(car.description).trim()
+            : `${title} | ${car.year} | ${car.mileage} | ${car.fuel} | ${car.environmentalClass}`;
 
         const schema = {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": `${title} ${car.year}`,
-            "description": `${title} | ${car.year} | ${car.mileage} | ${car.fuel} | ${car.environmentalClass}`,
+            "description": vehicleDescription,
             "image": absoluteImage,
             "sku": car.slug || car.folder || String(car.id),
             "brand": {
@@ -191,6 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
     injectVehicleSchemaScripts();
 });
 
-window.addEventListener("vehicles:loaded", () => {
-    injectVehicleSchemaScripts();
+window.addEventListener("vehicles:loaded", (event) => {
+    injectVehicleSchemaScripts(event.detail?.vehicles);
 });

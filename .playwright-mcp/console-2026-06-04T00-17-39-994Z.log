@@ -1,3 +1,0 @@
-[     602ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/websites/layangaragebv.be/hosting-security/ssl?redirectLocation=side_menu:0
-[  403597ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/websites/layangaragebv.be/hosting-security/ssl?redirectLocation=side_menu:0
-[  685418ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/rest-hosting/v3/ssl:0

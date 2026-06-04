@@ -74,8 +74,6 @@ layan_garage/
 ├── admin/
 │   ├── dashboard.html
 │   └── login.html
-├── reports/
-│   └── lighthouse reports
 ├── supabase/
 │   ├── migrations/
 │   └── README.md
@@ -157,6 +155,12 @@ Each car entry includes:
 
 The original local JavaScript vehicle array is kept only as a visual fallback if Supabase is temporarily unavailable. The production source of truth is Supabase.
 
+Vehicle cards are styled to keep titles, specification rows, status badges, price, and actions visually aligned across the grid. Status badges use clear business colors:
+
+- `Beschikbaar`: green
+- `Gereserveerd`: yellow
+- `Verkocht`: red
+
 Vehicle photos are not stored in the repository anymore. They are served from Supabase Storage:
 
 ```text
@@ -199,6 +203,9 @@ The admin panel supports:
 - Using `Other` fields when a value is not available in the dropdown.
 - Generating Dutch Facebook, Instagram, and WhatsApp post text while the admin fills vehicle data.
 - Including the public vehicle link in generated social media text.
+- Opening Facebook Business Suite, Instagram creation, and WhatsApp Business links from the generator after copying the generated text.
+
+The social media generator does not include raw Supabase image URLs in the post text. Photos should be uploaded manually inside the selected social platform, while the generated text includes the public vehicle link.
 
 ### Contact Form
 
@@ -259,16 +266,14 @@ Several optimizations were applied:
 - Removed unused image files.
 - Compressed active image assets while preserving visual quality.
 - Migrated vehicle gallery photos from the repository to Supabase Storage.
-- Removed the local vehicle image folder after verifying all 98 vehicle photos were available in Storage.
+- Removed the local vehicle image folder after verifying vehicle photos were available through Supabase Storage.
 - Added WebP hero image variants.
 - Improved LCP by replacing the heavy hero image delivery path.
 - Fixed accessibility contrast issues.
 - Cleaned up broken or unused social preview references.
 - Kept JavaScript lightweight and dependency-free.
 
-Latest Lighthouse checks were generated in the `reports/` directory.
-
-Final tested scores:
+Final Lighthouse scores from the last local QA pass:
 
 ### Mobile
 
@@ -284,12 +289,9 @@ Final tested scores:
 - Best Practices: `100`
 - SEO: `100`
 
-Reports:
+The `reports/` directory is not part of the delivered project files. New Lighthouse reports can be generated on demand with the commands below.
 
-- `reports/lighthouse-home-mobile-final3.report.html`
-- `reports/lighthouse-home-desktop-final3.report.html`
-
-Some remaining Lighthouse suggestions are deployment-related, such as cache lifetime headers, compression, and render-blocking CSS. These should improve further when the site is served from production hosting with proper gzip or Brotli compression and cache headers.
+Some remaining Lighthouse suggestions are hosting-related, such as cache lifetime headers, compression, and render-blocking CSS. These should be reviewed in Hostinger after any hosting cache or CDN changes.
 
 ---
 
@@ -363,11 +365,23 @@ Current migrations:
 Current production counts:
 
 ```text
-Vehicles: 10
-Vehicle feature records: 58
-Vehicle image records: 98
-Supabase Storage vehicle images: 98
+Vehicles: 11
+Visible vehicles: 11
+Sold vehicles: 1
+Vehicle feature records: 85
+Vehicle image records: 106
+Supabase Storage vehicle images tracked by metadata: 106
 Admin users: 1
+```
+
+Current highlighted inventory state:
+
+```text
+Audi Q7 3.0 TDI Quattro Tiptronic
+Status: sold / Verkocht
+Images: 8 WebP files in Supabase Storage
+Feature records: 27
+Description: full Dutch sales description stored in Supabase
 ```
 
 Storage policy summary:
@@ -458,18 +472,30 @@ js/main.js
 
 If the email provider or form service changes later, update the submit logic in `initializeContactForm()`.
 
-For production, verify:
+Production verification:
 
-- The Web3Forms access key is active.
-- Emails are delivered to the correct inbox.
-- Spam filtering does not block messages.
-- The domain is verified if the provider requires it.
+- Web3Forms access key is active.
+- The website form submits successfully.
+- Emails are delivered to `info@layangaragebv.be`.
+- The success message appears in green after a valid submission.
 
 ---
 
 ## Deployment Notes
 
-This project can be deployed to:
+This project is deployed in production on:
+
+```text
+https://layangaragebv.be
+```
+
+Production hosting:
+
+```text
+Hostinger
+```
+
+The same static project can also be deployed to:
 
 - Standard shared hosting
 - cPanel file manager
@@ -478,7 +504,7 @@ This project can be deployed to:
 - GitHub Pages
 - Any web server that can serve static files
 
-GitHub Pages is currently suitable as a preview/testing deployment. The final production deployment can be moved to the real hosting provider without changing the Supabase inventory setup, as long as the deployed files keep the same Supabase project configuration.
+GitHub Pages is used only as a preview/testing deployment. Production metadata, Open Graph URLs, JSON-LD URLs, and public vehicle links point to `https://layangaragebv.be`.
 
 For best production performance, enable:
 
@@ -492,6 +518,20 @@ Recommended cache behavior:
 - HTML: short cache
 - CSS/JS: long cache with version query strings
 - Images: long cache
+
+Latest files changed for the vehicle card, admin social generator, and admin style updates:
+
+```text
+index.html
+css/main.css
+css/responsive.css
+css/admin.css
+admin/dashboard.html
+js/admin-vehicles.js
+js/admin-social-generator.js
+```
+
+These files should be uploaded to Hostinger after the latest local changes. Supabase vehicle images do not need to be uploaded to Hostinger.
 
 ---
 
@@ -543,6 +583,10 @@ Project client:
 **Layan Garage BV**  
 Albert Panisstraat 130  
 9120 Beveren-Waas, Belgium
+
+Production handover:
+
+**Haydar Tarek** acts as the technical admin for production verification, deployment support, documentation, and handover acceptance.
 
 ---
 

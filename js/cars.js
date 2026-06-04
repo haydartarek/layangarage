@@ -243,6 +243,27 @@ function getVehicleTitle(car) {
   return car.title || `${car.brand} ${car.model}`.trim();
 }
 
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function trackVehicleEvent(eventName, car, params = {}) {
+  if (typeof window.gtag !== 'function' || !car) return;
+  window.gtag('event', eventName, {
+    event_category: 'vehicle',
+    car_id: String(car.id),
+    car_title: getVehicleTitle(car),
+    car_price: car.price,
+    car_status: car.status,
+    ...params
+  });
+}
+
 function isRemoteImage(src) {
   return /^https?:\/\//i.test(src) || src.startsWith('assets/');
 }
@@ -299,9 +320,9 @@ function createVehicleCard(car) {
   const title       = getVehicleTitle(car);
 
   const primaryBtn = isAvailable
-    ? `<a href="tel:+32486890002" class="btn btn-primary">Bel voor info</a>`
+    ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${car.id}" data-car-contact-source="card">Bel voor info</a>`
     : isBieden
-      ? `<a href="tel:+32486890002" class="btn btn-primary">Breng een bod uit</a>`
+      ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${car.id}" data-car-contact-source="card">Breng een bod uit</a>`
       : `<button class="btn btn-dark btn-disabled" disabled>${label}</button>`;
 
   const article = document.createElement('article');
@@ -353,7 +374,8 @@ function createModal() {
       </button>
       <div class="modal-gallery">
         <div class="gallery-main">
-          <img id="modal-main-img" alt="" loading="eager"
+          <img id="modal-main-img" src="assets/images/hero-garage.jpg"
+            alt="Voertuigfoto bij Layan Garage BV" loading="eager"
             onerror="this.onerror=null;this.src='assets/images/hero-garage.jpg'"/>
           <button class="gallery-nav gallery-prev" id="gallery-prev" aria-label="Vorige foto">&#8592;</button>
           <button class="gallery-nav gallery-next" id="gallery-next" aria-label="Volgende foto">&#8594;</button>
@@ -366,10 +388,11 @@ function createModal() {
           <h2 id="modal-title"></h2>
           <div class="modal-price" id="modal-price"></div>
         </div>
+        <div class="modal-description" id="modal-description" hidden></div>
         <div class="modal-specs-grid" id="modal-specs"></div>
         <div class="modal-extras" id="modal-extras"></div>
         <div class="modal-actions">
-          <a href="tel:+32486890002" class="btn btn-primary btn-block">
+          <a href="tel:+32486890002" class="btn btn-primary btn-block" id="modal-call-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg>
             Bel 0486 89 00 02
           </a>
@@ -396,21 +419,34 @@ function openModal(carId) {
   const modal   = document.getElementById('car-modal');
   const imgs    = getVehicleImages(car);
   const title   = getVehicleTitle(car);
+  const openSource = lastFocusedElement?.dataset?.carId ? 'card' : 'direct_url';
+  const hasMultipleImages = imgs.length > 1;
+
+  modal.classList.toggle('single-image-modal', !hasMultipleImages);
 
   // title & price
   document.getElementById('modal-title').textContent  = title;
   document.getElementById('modal-price').textContent  = car.price;
+
+  const description = String(car.description || '').trim();
+  const descriptionElement = document.getElementById('modal-description');
+  descriptionElement.hidden = !description;
+  descriptionElement.innerHTML = description
+    ? `<strong>Beschrijving</strong><p>${escapeHtml(description)}</p>`
+    : '';
 
   // main image
   updateModalImage(imgs, 0);
 
   // thumbnails
   const thumbs = document.getElementById('gallery-thumbs');
-  thumbs.innerHTML = imgs.map((src, i) => `
-    <img src="${src}" class="gallery-thumb${i === 0 ? ' active' : ''}"
-      alt="Foto ${i+1}" loading="lazy" data-index="${i}"
-      onerror="this.style.display='none'"/>
-  `).join('');
+  thumbs.innerHTML = hasMultipleImages
+    ? imgs.map((src, i) => `
+      <img src="${src}" class="gallery-thumb${i === 0 ? ' active' : ''}"
+        alt="${title} - foto ${i + 1}" loading="lazy" data-index="${i}"
+        onerror="this.style.display='none'"/>
+    `).join('')
+    : '';
 
   thumbs.querySelectorAll('.gallery-thumb').forEach(thumb => {
     thumb.addEventListener('click', () => {
@@ -437,27 +473,48 @@ function openModal(carId) {
     .map(e => `<span class="modal-extra-tag">${e}</span>`).join('');
 
   // nav buttons
-  document.getElementById('gallery-prev').onclick = () => {
-    currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length;
-    updateModalImage(imgs, currentImgIndex);
-  };
-  document.getElementById('gallery-next').onclick = () => {
-    currentImgIndex = (currentImgIndex + 1) % imgs.length;
-    updateModalImage(imgs, currentImgIndex);
-  };
+  const prevButton = document.getElementById('gallery-prev');
+  const nextButton = document.getElementById('gallery-next');
+  prevButton.disabled = !hasMultipleImages;
+  nextButton.disabled = !hasMultipleImages;
+  prevButton.onclick = hasMultipleImages
+    ? () => {
+      currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length;
+      updateModalImage(imgs, currentImgIndex);
+    }
+    : null;
+  nextButton.onclick = hasMultipleImages
+    ? () => {
+      currentImgIndex = (currentImgIndex + 1) % imgs.length;
+      updateModalImage(imgs, currentImgIndex);
+    }
+    : null;
 
   // contact btn
-  document.getElementById('modal-contact-btn').onclick = closeModal;
+  const modalCallBtn = document.getElementById('modal-call-btn');
+  modalCallBtn.dataset.carCallId = String(car.id);
+  modalCallBtn.dataset.carContactSource = 'modal';
+
+  document.getElementById('modal-contact-btn').onclick = () => {
+    trackVehicleEvent('car_message_button', car, { button_location: 'modal' });
+    closeModal();
+  };
 
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   document.getElementById('modal-close').focus();
+
+  trackVehicleEvent('car_details_open', car, {
+    open_source: openSource,
+    image_count: imgs.length
+  });
 }
 
 function updateModalImage(imgs, index) {
   const mainImg = document.getElementById('modal-main-img');
+  const modalTitle = document.getElementById('modal-title')?.textContent || 'Voertuig bij Layan Garage BV';
   mainImg.src = imgs[index];
-  mainImg.alt = `Foto ${index + 1}`;
+  mainImg.alt = `${modalTitle} - foto ${index + 1}`;
   document.getElementById('gallery-counter').textContent = `${index + 1} / ${imgs.length}`;
   document.querySelectorAll('.gallery-thumb').forEach((t, i) =>
     t.classList.toggle('active', i === index));
@@ -515,6 +572,15 @@ async function renderCars() {
   vehicleEventsBound = true;
 
   document.addEventListener('click', e => {
+    const callLink = e.target.closest('[data-car-call-id]');
+    if (callLink) {
+      const car = availableCars.find(c => String(c.id) === String(callLink.dataset.carCallId));
+      trackVehicleEvent('car_call_button', car, {
+        button_location: callLink.dataset.carContactSource || 'unknown'
+      });
+      return;
+    }
+
     const btn = e.target.closest('[data-car-id]');
     if (btn) {
       e.preventDefault();

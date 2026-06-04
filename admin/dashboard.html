@@ -7,7 +7,7 @@
   <title>Vehicle Dashboard | Layan Garage BV</title>
   <link rel="icon" href="../assets/logo/favicon.ico">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="../css/admin.css?v=20260603-2">
+  <link rel="stylesheet" href="../css/admin.css?v=20260604-1">
 </head>
 <body class="admin-page">
   <header class="admin-header">
@@ -222,14 +222,24 @@
         <article class="social-card">
           <div class="admin-subpanel-head">
             <h3>Facebook-bericht</h3>
-            <button class="admin-btn admin-btn-small" data-copy-target="facebook-output" type="button">Kopieer</button>
+            <div class="social-actions">
+              <button class="admin-btn admin-btn-small" data-copy-target="facebook-output" type="button">Kopieer</button>
+              <a class="admin-btn admin-btn-small admin-btn-primary" id="open-facebook-link"
+                href="https://business.facebook.com/latest/composer" target="_blank" rel="noopener noreferrer"
+                data-open-social="facebook" data-copy-target="facebook-output">Open Facebook</a>
+            </div>
           </div>
           <textarea id="facebook-output" readonly rows="12"></textarea>
         </article>
         <article class="social-card">
           <div class="admin-subpanel-head">
             <h3>Instagram-tekst</h3>
-            <button class="admin-btn admin-btn-small" data-copy-target="instagram-output" type="button">Kopieer</button>
+            <div class="social-actions">
+              <button class="admin-btn admin-btn-small" data-copy-target="instagram-output" type="button">Kopieer</button>
+              <a class="admin-btn admin-btn-small admin-btn-primary" id="open-instagram-link"
+                href="https://www.instagram.com/create/select/" target="_blank" rel="noopener noreferrer"
+                data-open-social="instagram" data-copy-target="instagram-output">Open Instagram</a>
+            </div>
           </div>
           <textarea id="instagram-output" readonly rows="12"></textarea>
         </article>
@@ -238,7 +248,8 @@
             <h3>WhatsApp-bericht</h3>
             <div class="social-actions">
               <button class="admin-btn admin-btn-small" data-copy-target="whatsapp-output" type="button">Kopieer</button>
-              <a class="admin-btn admin-btn-small admin-btn-primary" id="open-whatsapp-link" target="_blank" rel="noopener noreferrer">Open WhatsApp</a>
+              <a class="admin-btn admin-btn-small admin-btn-primary" id="open-whatsapp-link" target="_blank"
+                rel="noopener noreferrer" data-open-social="whatsapp" data-copy-target="whatsapp-output">Open WhatsApp</a>
             </div>
           </div>
           <textarea id="whatsapp-output" readonly rows="12"></textarea>
@@ -250,7 +261,7 @@
 
   <main class="admin-layout" id="admin-blocked">
     <section class="admin-panel">
-      <h1>Admin wordt geladen</h1>
+      <p class="admin-loading-title">Admin wordt geladen</p>
       <p class="admin-muted">Controle van Supabase sessie en configuratie...</p>
       <p id="admin-guard-message" class="admin-message"></p>
     </section>
@@ -258,9 +269,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="../js/supabase-config.js?v=20260603-1" defer></script>
-  <script src="../js/vehicle-store.js?v=20260603-2" defer></script>
-  <script src="../js/admin-social-generator.js?v=20260604-1" defer></script>
+  <script src="../js/vehicle-store.js?v=20260604-1" defer></script>
+  <script src="../js/admin-social-generator.js?v=20260604-2" defer></script>
   <script src="../js/admin-auth.js?v=20260603-1" defer></script>
-  <script src="../js/admin-vehicles.js?v=20260603-2" defer></script>
+  <script src="../js/admin-vehicles.js?v=20260604-2" defer></script>
 </body>
 </html>

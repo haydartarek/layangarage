@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Canonical host: redirect www to non-www while preserving the path and query string.
+RewriteCond %{HTTP_HOST} ^www\.layangaragebv\.be$ [NC]
+RewriteRule ^ https://layangaragebv.be%{REQUEST_URI} [R=301,L,NE]
+
+# Canonical protocol: keep the production domain on HTTPS.
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^layangaragebv\.be$ [NC]
+RewriteRule ^ https://layangaragebv.be%{REQUEST_URI} [R=301,L,NE]

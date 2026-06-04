@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /privacy.html
+Disallow: /algemene-voorwaarden.html
+
+Sitemap: https://layangaragebv.be/sitemap.xml

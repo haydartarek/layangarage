@@ -219,6 +219,29 @@
   async function deleteVehicle(vehicleId) {
     const client = getClient();
     if (!client) throw new Error('Supabase is not configured.');
+
+    const { data: imageRows, error: imageReadError } = await client
+      .from('vehicle_images')
+      .select('storage_path')
+      .eq('vehicle_id', vehicleId);
+    if (imageReadError) throw imageReadError;
+
+    const bucket = getConfig().storageBucket || 'vehicle-images';
+    const storagePaths = (imageRows || [])
+      .map(image => image.storage_path)
+      .filter(path => path && !path.startsWith('assets/') && !/^https?:\/\//i.test(path));
+
+    const { error: hideError } = await client
+      .from('vehicles')
+      .update({ is_visible: false, updated_at: new Date().toISOString() })
+      .eq('id', vehicleId);
+    if (hideError) throw hideError;
+
+    if (storagePaths.length) {
+      const { error: storageError } = await client.storage.from(bucket).remove(storagePaths);
+      if (storageError) throw storageError;
+    }
+
     const { error } = await client.from('vehicles').delete().eq('id', vehicleId);
     if (error) throw error;
   }

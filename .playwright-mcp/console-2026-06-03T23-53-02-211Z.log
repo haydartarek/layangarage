@@ -1,2 +1,0 @@
-[    1327ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/domains/transfers:0
-[  311626ms] [ERROR] Refused to set unsafe header "User-Agent" @ https://hpanel.hostinger.com/assets/chunk/vendor.0BjsEgew.js:258

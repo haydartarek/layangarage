@@ -1,3 +1,0 @@
-[     880ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://hpanel.hostinger.com/websites:0
-[ 3159657ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://hpanel.hostinger.com/api/rest-hosting/v3/ssl:0
-[ 3159937ms] [ERROR] Failed to load resource: the server responded with a status of 432 () @ https://hpanel.hostinger.com/api/rest-hosting/v3/ssl:0

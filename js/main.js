@@ -247,13 +247,44 @@ function initializeScrollToTop() {
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 }
 
+/* ── ANALYTICS EVENTS ── */
+function trackAnalyticsEvent(eventName, params = {}) {
+  if (typeof window.gtag !== 'function') return;
+  window.gtag('event', eventName, {
+    event_category: 'engagement',
+    ...params
+  });
+}
+
+function initializeContactClickTracking() {
+  document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+
+    const href = link.getAttribute('href') || '';
+    const linkText = link.textContent.trim().replace(/\s+/g, ' ');
+    const params = {
+      link_text: linkText,
+      link_url: link.href || href
+    };
+
+    if (href.startsWith('tel:')) {
+      trackAnalyticsEvent('click_phone', params);
+    } else if (href.startsWith('mailto:')) {
+      trackAnalyticsEvent('click_email', params);
+    } else if (/wa\.me|whatsapp/i.test(href)) {
+      trackAnalyticsEvent('click_whatsapp', params);
+    }
+  });
+}
+
 /* ── CONTACT FORM ── */
 function initializeContactForm() {
   const form = document.getElementById('contact-form');
   const msg  = document.getElementById('form-message');
   if (!form || !msg) return;
 
-  const WEB3FORMS_ACCESS_KEY = '8361b3bb-46eb-4a17-9437-9e06d980a2ff';
+  const WEB3FORMS_ACCESS_KEY = '0d92510a-c978-41ab-9c03-5a16f0e8a573';
   const submitButton = form.querySelector('[type="submit"]');
 
   const fields = {
@@ -458,6 +489,10 @@ function initializeContactForm() {
 
       msg.className = 'success';
       msg.textContent = 'Uw bericht is succesvol verzonden. Wij nemen zo snel mogelijk contact met u op.';
+      trackAnalyticsEvent('contact_form_submit', {
+        form_id: form.id,
+        form_name: 'contact_form'
+      });
       form.reset();
       Object.values(fields).forEach(input => input && clearFieldError(input));
     } catch (error) {
@@ -607,6 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeServiceDetails();
   initializeActiveNavigation();
   initializeScrollToTop();
+  initializeContactClickTracking();
   initializeContactForm();
   initializeFaqAccordion();
   initializeStatsCounter();

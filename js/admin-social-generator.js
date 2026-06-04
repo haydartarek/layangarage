@@ -70,24 +70,6 @@
     return items.length ? items.map(item => `• ${item}`).join('\n') : '• Contacteer ons voor de volledige uitrusting';
   }
 
-  function imageUrls(vehicle) {
-    const images = Array.isArray(vehicle.images) ? vehicle.images : [];
-    return images
-      .map(src => {
-        if (!src) return '';
-        if (/^https?:\/\//i.test(src)) return src;
-        if (src.startsWith('assets/')) return `${CONTACT.website}/${src}`;
-        return src;
-      })
-      .filter(Boolean);
-  }
-
-  function imageSection(vehicle, limit = 8) {
-    const images = imageUrls(vehicle).slice(0, limit);
-    if (!images.length) return '';
-    return `\n\n📸 Foto's\n${images.map((src, index) => `• Foto ${index + 1}: ${src}`).join('\n')}`;
-  }
-
   function generateFacebook(vehicle) {
     return `🚗 ${title(vehicle)}
 
@@ -104,7 +86,6 @@ ${specs(vehicle).map(([label, value]) => `• ${label}: ${value}`).join('\n')}
 ✅ Opties
 
 ${featureLines(vehicle)}
-${imageSection(vehicle, 10)}
 
 Voor meer details, bekijk deze wagen via:
 ${vehicleUrl(vehicle)}
@@ -139,7 +120,6 @@ ${description(vehicle)}
 📌 ${conditionLabel(vehicle)} | ${vehicle.year || '-'} | ${vehicle.mileage || '-'} | ${vehicle.fuel || '-'} | ${vehicle.transmission || '-'}
 
 ✅ ${(vehicle.extras || []).slice(0, 5).join(' · ') || 'Mooie uitrusting'}
-${imageSection(vehicle, 4)}
 
 📍 Beveren-Waas
 📞 ${CONTACT.phone}
@@ -161,7 +141,6 @@ ${specs(vehicle).map(([label, value]) => `• ${label}: ${value}`).join('\n')}
 
 ✅ Belangrijkste opties
 ${featureLines(vehicle, 8)}
-${imageSection(vehicle, 5)}
 
 Voor meer details, bekijk deze wagen via:
 ${vehicleUrl(vehicle)}
