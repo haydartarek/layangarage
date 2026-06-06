@@ -22,6 +22,7 @@ create table if not exists public.vehicles (
   mileage integer,
   fuel_type text not null default '',
   engine text not null default '',
+  vermogen text not null default '',
   transmission text not null default '',
   euro_norm text not null default '',
   seats integer,

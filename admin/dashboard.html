@@ -7,7 +7,7 @@
   <title>Vehicle Dashboard | Layan Garage BV</title>
   <link rel="icon" href="../assets/logo/favicon.ico">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="../css/admin.css?v=20260604-1">
+  <link rel="stylesheet" href="../css/admin.css?v=20260606-2">
 </head>
 <body class="admin-page">
   <header class="admin-header">
@@ -107,6 +107,24 @@
                 <option value="Other">Other</option>
               </select>
               <input class="admin-other-input" id="vehicle-engine-other" name="engineOther" type="text" placeholder="Andere motor" hidden>
+            </div>
+            <div class="admin-field">
+              <label for="vehicle-vermogen">Vermogen</label>
+              <select id="vehicle-vermogen" name="vermogen" data-other-select="vermogenOther">
+                <option value="">Selecteer vermogen</option>
+                <option value="77 kW / 105 PK">77 kW / 105 PK</option>
+                <option value="85 kW / 116 PK">85 kW / 116 PK</option>
+                <option value="90 kW / 122 PK">90 kW / 122 PK</option>
+                <option value="96 kW / 131 PK">96 kW / 131 PK</option>
+                <option value="110 kW / 150 PK">110 kW / 150 PK</option>
+                <option value="118 kW / 160 PK">118 kW / 160 PK</option>
+                <option value="132 kW / 180 PK">132 kW / 180 PK</option>
+                <option value="140 kW / 190 PK">140 kW / 190 PK</option>
+                <option value="147 kW / 200 PK">147 kW / 200 PK</option>
+                <option value="180 kW / 245 PK">180 kW / 245 PK</option>
+                <option value="Other">Other</option>
+              </select>
+              <input class="admin-other-input" id="vehicle-vermogen-other" name="vermogenOther" type="text" placeholder="Ander vermogen" hidden>
             </div>
             <div class="admin-field">
               <label for="vehicle-transmission">Transmissie</label>
@@ -268,10 +286,11 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
   <script src="../js/supabase-config.js?v=20260603-1" defer></script>
-  <script src="../js/vehicle-store.js?v=20260604-1" defer></script>
-  <script src="../js/admin-social-generator.js?v=20260604-3" defer></script>
+  <script src="../js/vehicle-store.js?v=20260606-6" defer></script>
+  <script src="../js/admin-social-generator.js?v=20260606-4" defer></script>
   <script src="../js/admin-auth.js?v=20260604-1" defer></script>
-  <script src="../js/admin-vehicles.js?v=20260604-2" defer></script>
+  <script src="../js/admin-vehicles.js?v=20260606-6" defer></script>
 </body>
 </html>

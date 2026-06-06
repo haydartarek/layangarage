@@ -279,6 +279,15 @@ function getVehicleImages(car) {
     : [FALLBACK_VEHICLE_IMAGE];
 }
 
+function getVehicleCoverImage(car) {
+  if (window.LayanVehicleStore?.getVehicleCoverImage) {
+    const cover = window.LayanVehicleStore.getVehicleCoverImage(car);
+    if (cover) return getVehicleImageSrc(car, cover);
+  }
+  const firstOrderedImage = Array.isArray(car.images) && car.images.length ? car.images[0] : '';
+  return getVehicleImageSrc(car, firstOrderedImage || car.coverImage);
+}
+
 function getRequestedVehicleSlug() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -316,7 +325,7 @@ function createVehicleCard(car) {
   const isAvailable = car.status === 'beschikbaar';
   const isBieden    = car.status === 'bieden';
   const imgs        = getVehicleImages(car);
-  const mainImg     = imgs[0];
+  const mainImg     = getVehicleCoverImage(car);
   const title       = getVehicleTitle(car);
 
   const primaryBtn = isAvailable
@@ -421,6 +430,8 @@ function openModal(carId) {
   const title   = getVehicleTitle(car);
   const openSource = lastFocusedElement?.dataset?.carId ? 'card' : 'direct_url';
   const hasMultipleImages = imgs.length > 1;
+  const coverImage = getVehicleCoverImage(car);
+  const initialImageIndex = Math.max(0, imgs.findIndex(image => image === coverImage));
 
   modal.classList.toggle('single-image-modal', !hasMultipleImages);
 
@@ -436,13 +447,14 @@ function openModal(carId) {
     : '';
 
   // main image
-  updateModalImage(imgs, 0);
+  currentImgIndex = initialImageIndex;
+  updateModalImage(imgs, currentImgIndex);
 
   // thumbnails
   const thumbs = document.getElementById('gallery-thumbs');
   thumbs.innerHTML = hasMultipleImages
     ? imgs.map((src, i) => `
-      <img src="${src}" class="gallery-thumb${i === 0 ? ' active' : ''}"
+      <img src="${src}" class="gallery-thumb${i === currentImgIndex ? ' active' : ''}"
         alt="${title} - foto ${i + 1}" loading="lazy" data-index="${i}"
         onerror="this.style.display='none'"/>
     `).join('')
@@ -462,6 +474,7 @@ function openModal(carId) {
     <div class="modal-spec-item"><strong>Kilometerstand</strong>${car.mileage}</div>
     <div class="modal-spec-item"><strong>Brandstof</strong>${car.fuel}</div>
     <div class="modal-spec-item"><strong>Motor</strong>${car.engine}</div>
+    ${car.vermogen ? `<div class="modal-spec-item"><strong>Vermogen</strong>${car.vermogen}</div>` : ''}
     <div class="modal-spec-item"><strong>Transmissie</strong>${car.transmission}</div>
     <div class="modal-spec-item"><strong>Euronorm</strong>${car.environmentalClass}</div>
     <div class="modal-spec-item"><strong>Zitplaatsen</strong>${car.seats}</div>

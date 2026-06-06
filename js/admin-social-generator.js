@@ -33,7 +33,8 @@
     if (vehicle.description?.trim()) return vehicle.description.trim();
     const features = (vehicle.extras || []).slice(0, 4).join(', ');
     const condition = conditionLabel(vehicle).toLowerCase();
-    return `${title(vehicle)} is een ${condition} voertuig met ${vehicle.fuel || 'betrouwbare motorisatie'} en ${vehicle.transmission || 'praktische transmissie'}. Deze wagen wordt aangeboden door Layan Garage BV in Beveren-Waas.${features ? ` Uitgerust met onder andere ${features}.` : ''}`;
+    const power = vehicle.vermogen ? ` met ${vehicle.vermogen}` : '';
+    return `${title(vehicle)} is een ${condition} voertuig met ${vehicle.fuel || 'betrouwbare motorisatie'}${power} en ${vehicle.transmission || 'praktische transmissie'}. Deze wagen wordt aangeboden door Layan Garage BV in Beveren-Waas.${features ? ` Uitgerust met onder andere ${features}.` : ''}`;
   }
 
   function conditionLabel(vehicle) {
@@ -58,6 +59,7 @@
       ['Kilometerstand', vehicle.mileage],
       ['Brandstof', vehicle.fuel],
       ['Motor', vehicle.engine],
+      ['Vermogen', vehicle.vermogen],
       ['Transmissie', vehicle.transmission],
       ['Euronorm', vehicle.environmentalClass || vehicle.euroNorm],
       ['Zitplaatsen', vehicle.seats],
@@ -118,6 +120,7 @@ ${CONTACT.address}
 ${description(vehicle)}
 
 📌 ${conditionLabel(vehicle)} | ${vehicle.year || '-'} | ${vehicle.mileage || '-'} | ${vehicle.fuel || '-'} | ${vehicle.transmission || '-'}
+${vehicle.vermogen ? `⚡ Vermogen: ${vehicle.vermogen}\n` : ''}
 
 ✅ ${(vehicle.extras || []).slice(0, 5).join(' · ') || 'Mooie uitrusting'}
 

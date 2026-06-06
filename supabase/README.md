@@ -43,6 +43,8 @@ Run the SQL files in order:
 4. `migrations/004_add_owner_admin_user.sql`
 5. `migrations/005_add_vehicle_condition_field.sql`
 6. `migrations/006_migrate_vehicle_images_to_storage.sql`
+7. `migrations/007_add_vehicle_vermogen_field.sql`
+8. `migrations/008_backfill_vehicle_vermogen.sql`
 
 The seed migration copies the existing website vehicles into Supabase.
 

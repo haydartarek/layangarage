@@ -70,6 +70,21 @@
     return vehicle.title || [vehicle.brand, vehicle.model].filter(Boolean).join(' ').trim();
   }
 
+  function splitLegacyEnginePower(engine, vermogen) {
+    const cleanEngine = String(engine || '').trim();
+    const cleanPower = String(vermogen || '').trim();
+    if (cleanPower) return { engine: cleanEngine, vermogen: cleanPower };
+
+    const match = cleanEngine.match(/^(.*?)\s+(\d+)\s*PK\s*$/i);
+    if (!match) return { engine: cleanEngine, vermogen: '' };
+
+    const pk = Number(match[2]);
+    return {
+      engine: match[1].trim(),
+      vermogen: `${Math.round(pk * 0.73549875)} kW / ${pk} PK`
+    };
+  }
+
   function publicImageUrl(path) {
     if (!path) return '';
     if (/^https?:\/\//i.test(path) || path.startsWith('assets/')) return path;
@@ -79,7 +94,96 @@
     return client.storage.from(bucket).getPublicUrl(path).data.publicUrl;
   }
 
+  function imageSortValue(image) {
+    if (image?.display_order === null || image?.display_order === undefined || image?.display_order === '') {
+      return Number.MAX_SAFE_INTEGER;
+    }
+    const order = Number(image?.display_order);
+    return Number.isFinite(order) ? order : Number.MAX_SAFE_INTEGER;
+  }
+
+  function imageCreatedAtValue(image) {
+    const time = Date.parse(image?.created_at || '');
+    return Number.isFinite(time) ? time : Number.MAX_SAFE_INTEGER;
+  }
+
+  function hasSavedImageOrder(image) {
+    return imageSortValue(image) !== Number.MAX_SAFE_INTEGER;
+  }
+
+  function compareVehicleImagesByCreatedAt(a, b) {
+    return imageCreatedAtValue(a) - imageCreatedAtValue(b);
+  }
+
+  function compareVehicleImages(a, b) {
+    const orderDiff = imageSortValue(a) - imageSortValue(b);
+    if (orderDiff !== 0) return orderDiff;
+    return compareVehicleImagesByCreatedAt(a, b);
+  }
+
+  function normalizeImageRows(imageRows) {
+    return Array.isArray(imageRows)
+      ? imageRows.slice().sort(compareVehicleImages)
+      : [];
+  }
+
+  function vehicleStatusValue(vehicle) {
+    const rawStatus = String(vehicle?.status || '').toLowerCase();
+    return STATUS_TO_SITE[rawStatus] || rawStatus || 'beschikbaar';
+  }
+
+  function vehicleAvailabilityRank(vehicle) {
+    const status = vehicleStatusValue(vehicle);
+    if (status === 'beschikbaar') return 0;
+    if (status === 'verkocht') return 2;
+    return 1;
+  }
+
+  function vehicleDateSortValue(value) {
+    const time = Date.parse(value || '');
+    return Number.isFinite(time) ? time : 0;
+  }
+
+  function vehicleDisplayOrderValue(vehicle) {
+    const order = Number(vehicle?.display_order ?? vehicle?.displayOrder ?? 0);
+    return Number.isFinite(order) ? order : 0;
+  }
+
+  function compareVehiclesForListing(a, b) {
+    const availabilityDiff = vehicleAvailabilityRank(a) - vehicleAvailabilityRank(b);
+    if (availabilityDiff !== 0) return availabilityDiff;
+
+    const createdDiff = vehicleDateSortValue(b?.created_at || b?.createdAt) - vehicleDateSortValue(a?.created_at || a?.createdAt);
+    if (createdDiff !== 0) return createdDiff;
+
+    const orderDiff = vehicleDisplayOrderValue(a) - vehicleDisplayOrderValue(b);
+    if (orderDiff !== 0) return orderDiff;
+
+    return String(a?.title || '').localeCompare(String(b?.title || ''), 'nl-BE');
+  }
+
+  function sortVehiclesForListing(vehicles) {
+    return Array.isArray(vehicles)
+      ? vehicles.slice().sort(compareVehiclesForListing)
+      : [];
+  }
+
+  function getVehicleCoverImage(vehicle) {
+    const sourceRows = vehicle?.imageRecords || vehicle?.vehicle_images || [];
+    const imageRows = normalizeImageRows(sourceRows);
+    const firstOrderedImage = imageRows.some(hasSavedImageOrder) ? imageRows[0] : null;
+    const featuredImage = imageRows.filter(image => image.is_featured).sort(compareVehicleImagesByCreatedAt)[0] || null;
+    const earliestImage = imageRows.slice().sort(compareVehicleImagesByCreatedAt)[0] || null;
+    const selectedRecord = firstOrderedImage || featuredImage || earliestImage;
+
+    if (selectedRecord?.storage_path) return publicImageUrl(selectedRecord.storage_path);
+    if (Array.isArray(vehicle?.images) && vehicle.images.length) return vehicle.images[0];
+    if (vehicle?.coverImage) return vehicle.coverImage;
+    return '';
+  }
+
   function normalizeVehicle(row) {
+    const powertrain = splitLegacyEnginePower(row.engine, row.vermogen);
     const features = Array.isArray(row.vehicle_features)
       ? row.vehicle_features
           .slice()
@@ -91,13 +195,7 @@
         : [];
 
     const imageRows = Array.isArray(row.vehicle_images)
-      ? row.vehicle_images
-          .slice()
-          .sort((a, b) => {
-            if (a.is_featured && !b.is_featured) return -1;
-            if (!a.is_featured && b.is_featured) return 1;
-            return (a.display_order || 0) - (b.display_order || 0);
-          })
+      ? normalizeImageRows(row.vehicle_images)
       : [];
 
     const images = imageRows.length
@@ -106,7 +204,7 @@
         ? row.images
         : [];
 
-    return {
+    const normalized = {
       id: row.id,
       slug: row.slug || row.folder || slugify(buildTitle(row)),
       title: buildTitle(row),
@@ -117,7 +215,8 @@
       mileage: normalizeMileage(row.mileage),
       fuel: row.fuel_type || row.fuel || '',
       fuelType: row.fuel_type || row.fuel || '',
-      engine: row.engine || '',
+      engine: powertrain.engine,
+      vermogen: powertrain.vermogen,
       transmission: row.transmission || '',
       environmentalClass: row.euro_norm || row.environmentalClass || '',
       euroNorm: row.euro_norm || row.environmentalClass || '',
@@ -127,17 +226,21 @@
       description: row.description || '',
       status: STATUS_TO_SITE[row.status] || row.status || 'beschikbaar',
       isVisible: row.is_visible !== false,
-      displayOrder: row.display_order || 0,
+      displayOrder: row.display_order ?? row.displayOrder ?? 0,
+      createdAt: row.created_at || row.createdAt || '',
+      updatedAt: row.updated_at || row.updatedAt || '',
       folder: row.folder || row.slug || slugify(buildTitle(row)),
       images,
       imageRecords: imageRows,
       extras: features,
       source: imageRows.length ? 'supabase' : (row.source || 'local')
     };
+    normalized.coverImage = getVehicleCoverImage(normalized) || images[0] || '';
+    return normalized;
   }
 
   async function loadVehicles({ fallbackVehicles = [] } = {}) {
-    const fallback = fallbackVehicles.map(normalizeVehicle);
+    const fallback = sortVehiclesForListing(fallbackVehicles.map(normalizeVehicle));
     const client = getClient();
     if (!client) return fallback;
 
@@ -146,18 +249,19 @@
       .select(`
         *,
         vehicle_features(id,label,display_order),
-        vehicle_images(id,storage_path,alt_text,is_featured,display_order)
+        vehicle_images(id,storage_path,alt_text,is_featured,display_order,created_at)
       `)
       .eq('is_visible', true)
+      .order('created_at', { ascending: false })
       .order('display_order', { ascending: true })
-      .order('created_at', { ascending: false });
+      .order('title', { ascending: true });
 
     if (error) {
       console.warn('Supabase vehicle load failed. Local fallback is used.', error);
       return fallback;
     }
 
-    return (data || []).map(normalizeVehicle);
+    return sortVehiclesForListing(data || []).map(normalizeVehicle);
   }
 
   async function loadAdminVehicles() {
@@ -169,13 +273,14 @@
       .select(`
         *,
         vehicle_features(id,label,display_order),
-        vehicle_images(id,storage_path,alt_text,is_featured,display_order)
+        vehicle_images(id,storage_path,alt_text,is_featured,display_order,created_at)
       `)
+      .order('created_at', { ascending: false })
       .order('display_order', { ascending: true })
-      .order('created_at', { ascending: false });
+      .order('title', { ascending: true });
 
     if (error) throw error;
-    return (data || []).map(normalizeVehicle);
+    return sortVehiclesForListing(data || []).map(normalizeVehicle);
   }
 
   function toDatabasePayload(vehicle) {
@@ -190,6 +295,7 @@
       mileage: vehicle.mileage ? Number(String(vehicle.mileage).replace(/[^\d]/g, '')) : null,
       fuel_type: vehicle.fuelType || vehicle.fuel || '',
       engine: vehicle.engine || '',
+      vermogen: vehicle.vermogen || '',
       transmission: vehicle.transmission || '',
       euro_norm: vehicle.euroNorm || vehicle.environmentalClass || '',
       seats: vehicle.seats ? Number(vehicle.seats) : null,
@@ -202,14 +308,60 @@
     };
   }
 
+  async function findVehicleBySlug(client, slug) {
+    const { data, error } = await client
+      .from('vehicles')
+      .select('id,slug,vehicle_images(id)')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data || null;
+  }
+
+  async function buildAvailableSlug(client, baseSlug) {
+    const safeBase = baseSlug || 'vehicle';
+    const { data, error } = await client
+      .from('vehicles')
+      .select('slug')
+      .like('slug', `${safeBase}%`);
+
+    if (error) throw error;
+
+    const used = new Set((data || [])
+      .map(row => row.slug)
+      .filter(slug => slug === safeBase || new RegExp(`^${safeBase}-\\d+$`).test(slug)));
+    if (!used.has(safeBase)) return safeBase;
+
+    let counter = 2;
+    while (used.has(`${safeBase}-${counter}`)) counter += 1;
+    return `${safeBase}-${counter}`;
+  }
+
   async function saveVehicle(vehicle) {
     const client = getClient();
     if (!client) throw new Error('Supabase is not configured.');
 
     const payload = toDatabasePayload(vehicle);
-    const query = vehicle.id
-      ? client.from('vehicles').update(payload).eq('id', vehicle.id).select().single()
-      : client.from('vehicles').insert(payload).select().single();
+    let query;
+
+    if (vehicle.id) {
+      const slugOwner = await findVehicleBySlug(client, payload.slug);
+      if (slugOwner && String(slugOwner.id) !== String(vehicle.id)) {
+        payload.slug = await buildAvailableSlug(client, payload.slug);
+      }
+      query = client.from('vehicles').update(payload).eq('id', vehicle.id).select().single();
+    } else {
+      const existing = await findVehicleBySlug(client, payload.slug);
+      const existingImageCount = Array.isArray(existing?.vehicle_images) ? existing.vehicle_images.length : 0;
+
+      if (existing && existingImageCount === 0) {
+        query = client.from('vehicles').update(payload).eq('id', existing.id).select().single();
+      } else {
+        if (existing) payload.slug = await buildAvailableSlug(client, payload.slug);
+        query = client.from('vehicles').insert(payload).select().single();
+      }
+    }
 
     const { data, error } = await query;
     if (error) throw error;
@@ -270,15 +422,40 @@
     if (!client) throw new Error('Supabase is not configured.');
     const bucket = getConfig().storageBucket || 'vehicle-images';
     const accepted = ['image/jpeg', 'image/png', 'image/webp'];
+    const uploadItems = (files || []).map(item => item?.file ? item : ({ file: item, isFeatured: false }));
     const uploaded = [];
+    const { data: existingImages, error: existingImagesError } = await client
+      .from('vehicle_images')
+      .select('display_order,is_featured')
+      .eq('vehicle_id', vehicle.id)
+      .order('display_order', { ascending: false });
+    if (existingImagesError) throw existingImagesError;
 
-    for (const file of files) {
+    const startingOrder = Array.isArray(existingImages) && existingImages.length
+      ? Number(existingImages[0].display_order || 0) + 1
+      : 0;
+    const hasFeaturedImage = Array.isArray(existingImages) && existingImages.some(image => image.is_featured);
+    const hasSelectedIncomingFeatured = uploadItems.some(item => item.isFeatured);
+
+    if (hasFeaturedImage && hasSelectedIncomingFeatured) {
+      const { error: resetFeaturedError } = await client
+        .from('vehicle_images')
+        .update({ is_featured: false })
+        .eq('vehicle_id', vehicle.id);
+      if (resetFeaturedError) throw resetFeaturedError;
+    }
+
+    for (const [index, item] of uploadItems.entries()) {
+      const file = item.file;
       if (!accepted.includes(file.type)) throw new Error(`${file.name} is not an accepted image type.`);
       if (file.size > 5 * 1024 * 1024) throw new Error(`${file.name} is larger than 5 MB.`);
 
       const extension = file.name.split('.').pop().toLowerCase();
       const safeName = slugify(file.name.replace(/\.[^.]+$/, '')) || 'vehicle-image';
-      const path = `vehicles/${vehicle.slug || vehicle.id}/${Date.now()}-${safeName}.${extension}`;
+      const order = startingOrder + index;
+      const paddedOrder = String(order + 1).padStart(2, '0');
+      const uniqueSuffix = window.crypto?.randomUUID ? window.crypto.randomUUID().slice(0, 8) : String(Date.now()).slice(-8);
+      const path = `vehicles/${vehicle.slug || vehicle.id}/${vehicle.slug || vehicle.id}-${paddedOrder}-${safeName}-${uniqueSuffix}.${extension}`;
       const { error: uploadError } = await client.storage.from(bucket).upload(path, file, {
         cacheControl: '31536000',
         upsert: false
@@ -289,12 +466,23 @@
         vehicle_id: vehicle.id,
         storage_path: path,
         alt_text: `${vehicle.title || vehicle.brand || 'Voertuig'} foto`,
-        is_featured: false,
-        display_order: Date.now()
+        is_featured: hasSelectedIncomingFeatured ? Boolean(item.isFeatured) : (!hasFeaturedImage && index === 0),
+        display_order: order
       };
-      const { error: insertError } = await client.from('vehicle_images').insert(row);
-      if (insertError) throw insertError;
-      uploaded.push(path);
+      const { data: insertedImage, error: insertError } = await client
+        .from('vehicle_images')
+        .insert(row)
+        .select('id,storage_path,alt_text,is_featured,display_order,created_at')
+        .single();
+      if (insertError) {
+        await client.storage.from(bucket).remove([path]);
+        throw insertError;
+      }
+      uploaded.push({
+        ...insertedImage,
+        pendingId: item.pendingId || '',
+        vehicle_id: vehicle.id
+      });
     }
 
     return uploaded;
@@ -359,6 +547,8 @@
     reorderVehicleImages,
     getCurrentSession,
     normalizeVehicle,
+    sortVehiclesForListing,
+    getVehicleCoverImage,
     slugify,
     publicImageUrl,
     STATUS_TO_DB,

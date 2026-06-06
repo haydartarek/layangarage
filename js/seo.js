@@ -237,6 +237,18 @@ function injectDepannageServiceSchema() {
     appendJsonLdSchema(schema, "depannage-service");
 }
 
+function getVehicleEnginePowerSchema(vermogen) {
+    const match = String(vermogen || "").match(/(\d+(?:[.,]\d+)?)\s*kW/i);
+    if (!match) return null;
+
+    return {
+        "@type": "QuantitativeValue",
+        "value": Number(match[1].replace(",", ".")),
+        "unitCode": "KWT",
+        "unitText": "kW"
+    };
+}
+
 /**
  * Inject Product schema for each vehicle
  */
@@ -253,7 +265,10 @@ function injectVehicleSchemaScripts(vehicleList) {
     vehicles.forEach((car) => {
         const numericPrice = String(car.price || "").replace(/[^\d]/g, "");
         const hasPrice = numericPrice.length > 0;
-        const rawImage = Array.isArray(car.images) && car.images.length ? car.images[0] : "assets/images/hero-garage.jpg";
+        const rawImage = window.LayanVehicleStore?.getVehicleCoverImage?.(car)
+            || (Array.isArray(car.images) && car.images.length ? car.images[0] : "")
+            || car.coverImage
+            || "assets/images/hero-garage.jpg";
         const mainImage = /^https?:\/\//i.test(rawImage) || rawImage.startsWith("assets/")
             ? rawImage
             : "assets/images/hero-garage.jpg";
@@ -261,9 +276,12 @@ function injectVehicleSchemaScripts(vehicleList) {
             ? mainImage
             : `https://layangaragebv.be/${mainImage}`;
         const title = car.title || `${car.brand} ${car.model}`.trim();
-        const vehicleDescription = car.description && String(car.description).trim()
+        const baseVehicleDescription = car.description && String(car.description).trim()
             ? String(car.description).trim()
             : `${title} | ${car.year} | ${car.mileage} | ${car.fuel} | ${car.environmentalClass}`;
+        const vehicleDescription = car.vermogen
+            ? `${baseVehicleDescription} Vermogen: ${car.vermogen}.`
+            : baseVehicleDescription;
 
         const mileageValue = String(car.mileage || "")
             .replace(/[^\d.,]/g, "")
@@ -272,6 +290,7 @@ function injectVehicleSchemaScripts(vehicleList) {
         const numericMileage = Number.parseFloat(mileageValue);
         const isUsedVehicle = car.condition !== "nieuw" && car.condition !== "new";
         const statusKey = String(car.status || "").toLowerCase();
+        const enginePower = getVehicleEnginePowerSchema(car.vermogen);
 
         const schema = {
             "@context": "https://schema.org",
@@ -302,6 +321,7 @@ function injectVehicleSchemaScripts(vehicleList) {
                 "vehicleEngine": {
                     "@type": "EngineSpecification",
                     ...(car.engine ? { "name": car.engine } : {}),
+                    ...(enginePower ? { "enginePower": enginePower } : {}),
                     ...(car.fuel ? { "fuelType": car.fuel } : {})
                 }
             } : {}),
@@ -324,6 +344,7 @@ function injectVehicleSchemaScripts(vehicleList) {
                 { "@type": "PropertyValue", "name": "Bouwjaar", "value": car.year },
                 { "@type": "PropertyValue", "name": "Kilometerstand", "value": car.mileage },
                 { "@type": "PropertyValue", "name": "Brandstof", "value": car.fuel },
+                ...(car.vermogen ? [{ "@type": "PropertyValue", "name": "Vermogen", "value": car.vermogen }] : []),
                 { "@type": "PropertyValue", "name": "Euronorm", "value": car.environmentalClass || car.euroNorm }
             ]
         };

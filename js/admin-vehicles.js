@@ -6,7 +6,8 @@
   const state = {
     vehicles: [],
     selectedId: null,
-    pendingFiles: []
+    pendingFiles: [],
+    imageSortable: null
   };
 
   const els = {};
@@ -26,7 +27,7 @@
   }
 
   function imageSrc(vehicle) {
-    const image = vehicle?.images?.[0];
+    const image = window.LayanVehicleStore?.getVehicleCoverImage?.(vehicle) || vehicle?.images?.[0] || vehicle?.coverImage;
     return image || '../assets/images/hero-garage.jpg';
   }
 
@@ -39,6 +40,117 @@
 
   function selectedVehicle() {
     return state.vehicles.find(vehicle => String(vehicle.id) === String(state.selectedId)) || null;
+  }
+
+  function revokePendingPreviews() {
+    state.pendingFiles.forEach(item => {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    });
+  }
+
+  function setPendingFiles(files) {
+    revokePendingPreviews();
+    state.pendingFiles = files.map((file, index) => ({
+      id: `${Date.now()}-${index}-${file.name}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      isFeatured: index === 0
+    }));
+  }
+
+  function pendingUploadItems() {
+    return state.pendingFiles.map(item => ({
+      pendingId: item.id,
+      file: item.file,
+      isFeatured: item.isFeatured
+    }));
+  }
+
+  function ensureSinglePendingFeatured(preferredId) {
+    if (!state.pendingFiles.length) return;
+    const hasPreferred = state.pendingFiles.some(item => item.id === preferredId);
+    const featuredId = hasPreferred ? preferredId : state.pendingFiles[0].id;
+    state.pendingFiles = state.pendingFiles.map(item => ({
+      ...item,
+      isFeatured: item.id === featuredId
+    }));
+  }
+
+  function syncPendingFilesFromDom() {
+    const orderedIds = Array.from(els.imageList.querySelectorAll('[data-pending-image-id]'))
+      .map(card => card.dataset.pendingImageId);
+    if (!orderedIds.length) return;
+
+    const byId = new Map(state.pendingFiles.map(item => [item.id, item]));
+    state.pendingFiles = orderedIds.map(id => byId.get(id)).filter(Boolean);
+  }
+
+  function captureImageOrderFromDom() {
+    return Array.from(els.imageList.querySelectorAll('.image-admin-card'))
+      .map(card => ({
+        savedId: card.dataset.imageId || '',
+        pendingId: card.dataset.pendingImageId || ''
+      }))
+      .filter(item => item.savedId || item.pendingId);
+  }
+
+  async function syncSavedImagesFromDom() {
+    const vehicle = selectedVehicle();
+    if (!vehicle?.id) return;
+
+    const orderedIds = Array.from(els.imageList.querySelectorAll('[data-image-id]'))
+      .map(card => card.dataset.imageId);
+    if (!orderedIds.length) return;
+
+    const byId = new Map((vehicle.imageRecords || []).map(image => [String(image.id), image]));
+    const orderedRecords = orderedIds.map(id => byId.get(String(id))).filter(Boolean);
+    if (!orderedRecords.length) return;
+
+    await window.LayanVehicleStore.reorderVehicleImages(orderedRecords);
+  }
+
+  async function handleImageSortEnd() {
+    syncPendingFilesFromDom();
+
+    if (!selectedVehicle()) {
+      renderSocial({ ...readFormVehicle(), extras: getFeatureValues() });
+      message(state.pendingFiles.length ? 'Foto volgorde klaar. Klik Opslaan om te uploaden.' : '', '');
+      return;
+    }
+
+    try {
+      await syncSavedImagesFromDom();
+      if (state.pendingFiles.length) {
+        renderSocial({ ...readFormVehicle(), extras: getFeatureValues() });
+        message("Foto volgorde bijgewerkt. Nieuwe foto's worden in deze positie opgeslagen bij Opslaan.", 'success');
+        return;
+      }
+      await refreshVehicles({ keepSelection: true });
+      message('Foto volgorde opgeslagen.', 'success');
+    } catch (error) {
+      message(error.message || 'Foto volgorde opslaan is mislukt.', 'error');
+      await refreshVehicles({ keepSelection: true });
+    }
+  }
+
+  function initializeImageSortable() {
+    if (!els.imageList || !window.Sortable) return;
+    if (state.imageSortable) state.imageSortable.destroy();
+
+    state.imageSortable = window.Sortable.create(els.imageList, {
+      animation: 180,
+      draggable: '.image-admin-card',
+      handle: '.image-drag-handle',
+      filter: 'button,a,input,textarea,select',
+      preventOnFilter: false,
+      forceFallback: true,
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      ghostClass: 'image-sortable-ghost',
+      chosenClass: 'image-sortable-chosen',
+      dragClass: 'image-sortable-drag',
+      onEnd: handleImageSortEnd
+    });
   }
 
   function getFeatureValues() {
@@ -120,6 +232,7 @@
   }
 
   function resetForm() {
+    revokePendingPreviews();
     els.form.reset();
     els.form.elements.id.value = '';
     els.form.elements.isVisible.checked = true;
@@ -148,6 +261,7 @@
     els.form.elements.mileage.value = String(vehicle.mileage || '').replace(/[^\d]/g, '');
     setSelectOrOther('fuelType', 'fuelTypeOther', vehicle.fuel || vehicle.fuelType || '');
     setSelectOrOther('engine', 'engineOther', vehicle.engine || '');
+    setSelectOrOther('vermogen', 'vermogenOther', vehicle.vermogen || '');
     setSelectOrOther('transmission', 'transmissionOther', vehicle.transmission || '');
     setSelectOrOther('euroNorm', 'euroNormOther', vehicle.environmentalClass || vehicle.euroNorm || '');
     setSelectOrOther('seats', 'seatsOther', vehicle.seats || '');
@@ -183,6 +297,7 @@
       mileage: form.mileage.value.trim(),
       fuelType: readSelectOrOther('fuelType', 'fuelTypeOther'),
       engine: readSelectOrOther('engine', 'engineOther'),
+      vermogen: readSelectOrOther('vermogen', 'vermogenOther'),
       transmission: readSelectOrOther('transmission', 'transmissionOther'),
       euroNorm: readSelectOrOther('euroNorm', 'euroNormOther'),
       seats: readSelectOrOther('seats', 'seatsOther'),
@@ -209,35 +324,54 @@
   function renderImageList(vehicle) {
     const records = vehicle.imageRecords || [];
     if (!vehicle.id) {
-      els.imageList.innerHTML = '<p class="admin-muted">Sla de wagen eerst op voordat u afbeeldingen beheert.</p>';
+      renderPendingImageCards();
       return;
     }
 
-    if (!records.length) {
-      els.imageList.innerHTML = '<p class="admin-muted">Nog geen Supabase afbeeldingen voor deze wagen.</p>';
-      return;
-    }
-
-    els.imageList.innerHTML = records.map((image, index) => {
+    const savedMarkup = records.map((image, index) => {
       const src = window.LayanVehicleStore.publicImageUrl(image.storage_path);
       return `
         <article class="image-admin-card${image.is_featured ? ' image-featured' : ''}" data-image-id="${image.id}">
+          <span class="image-drag-handle" role="button" aria-label="Sleep foto naar een andere positie">↕</span>
           <img src="${src}" alt="${escapeHtml(image.alt_text || title(vehicle))}" loading="lazy">
           <div class="image-admin-actions">
-            <button class="admin-btn admin-btn-small admin-btn-ghost" type="button" data-image-up="${image.id}" ${index === 0 ? 'disabled' : ''}>↑</button>
-            <button class="admin-btn admin-btn-small admin-btn-ghost" type="button" data-image-down="${image.id}" ${index === records.length - 1 ? 'disabled' : ''}>↓</button>
             <button class="admin-btn admin-btn-small admin-btn-primary" type="button" data-image-featured="${image.id}">Main</button>
             <button class="admin-btn admin-btn-small admin-btn-danger" type="button" data-image-delete="${image.id}">Delete</button>
           </div>
         </article>
       `;
     }).join('');
+
+    const pendingMarkup = renderPendingImageCards({ returnMarkup: true });
+    const emptyMarkup = '<p class="admin-muted">Nog geen Supabase afbeeldingen voor deze wagen.</p>';
+    els.imageList.innerHTML = [savedMarkup, pendingMarkup].filter(Boolean).join('') || emptyMarkup;
+    initializeImageSortable();
+  }
+
+  function renderPendingImageCards({ returnMarkup = false } = {}) {
+    if (!state.pendingFiles.length) return returnMarkup ? '' : undefined;
+
+    const markup = state.pendingFiles.map((item, index) => `
+      <article class="image-admin-card image-pending-card${item.isFeatured ? ' image-featured' : ''}" data-pending-image-id="${escapeHtml(item.id)}">
+        <span class="image-drag-handle" role="button" aria-label="Sleep foto naar een andere positie">↕</span>
+        <span class="image-pending-label">Nieuw · ${index + 1}</span>
+        <img src="${item.previewUrl}" alt="${escapeHtml(item.file.name)}" loading="lazy">
+        <div class="image-admin-actions">
+          <button class="admin-btn admin-btn-small admin-btn-primary" type="button" data-pending-featured="${escapeHtml(item.id)}">Main</button>
+          <button class="admin-btn admin-btn-small admin-btn-danger" type="button" data-pending-delete="${escapeHtml(item.id)}">Delete</button>
+        </div>
+      </article>
+    `).join('');
+
+    if (returnMarkup) return markup;
+    els.imageList.innerHTML = markup || '<p class="admin-muted">Kies foto&apos;s en bepaal de volgorde voordat u opslaat.</p>';
+    initializeImageSortable();
   }
 
   function renderSocial(vehicle) {
     const empty = !vehicle;
     const selected = selectedVehicle();
-    const pendingImages = state.pendingFiles.map(file => file.name);
+    const pendingImages = state.pendingFiles.map(item => item.file.name);
     const enrichedVehicle = empty ? null : {
       ...vehicle,
       fuel: vehicle.fuel || vehicle.fuelType || '',
@@ -297,7 +431,17 @@
       const saved = await window.LayanVehicleStore.saveVehicle(vehicle);
       await window.LayanVehicleStore.replaceFeatures(saved.id, getFeatureValues());
       if (state.pendingFiles.length) {
-        await window.LayanVehicleStore.uploadVehicleImages(saved, state.pendingFiles);
+        const intendedOrder = captureImageOrderFromDom();
+        const uploadedImages = await window.LayanVehicleStore.uploadVehicleImages(saved, pendingUploadItems());
+        if (intendedOrder.length && uploadedImages.length) {
+          const uploadedByPendingId = new Map(uploadedImages.map(image => [image.pendingId, image]));
+          const savedById = new Map((selectedVehicle()?.imageRecords || []).map(image => [String(image.id), image]));
+          const finalOrder = intendedOrder
+            .map(item => item.savedId ? savedById.get(String(item.savedId)) : uploadedByPendingId.get(item.pendingId))
+            .filter(Boolean);
+          if (finalOrder.length) await window.LayanVehicleStore.reorderVehicleImages(finalOrder);
+        }
+        revokePendingPreviews();
         state.pendingFiles = [];
         els.imageInput.value = '';
       }
@@ -329,13 +473,12 @@
 
   async function handleImageAction(target) {
     const vehicle = selectedVehicle();
+    if (handlePendingImageAction(target)) return;
     if (!vehicle) return;
     const records = (vehicle.imageRecords || []).slice();
 
     const featuredId = target.dataset.imageFeatured;
     const deleteId = target.dataset.imageDelete;
-    const upId = target.dataset.imageUp;
-    const downId = target.dataset.imageDown;
 
     try {
       if (featuredId) {
@@ -348,21 +491,39 @@
         if (image) await window.LayanVehicleStore.deleteVehicleImage(image);
       }
 
-      if (upId || downId) {
-        const id = upId || downId;
-        const index = records.findIndex(item => String(item.id) === String(id));
-        const next = upId ? index - 1 : index + 1;
-        if (index >= 0 && next >= 0 && next < records.length) {
-          [records[index], records[next]] = [records[next], records[index]];
-          await window.LayanVehicleStore.reorderVehicleImages(records);
-        }
-      }
-
       await refreshVehicles({ keepSelection: true });
       message('Afbeeldingen bijgewerkt.', 'success');
     } catch (error) {
       message(error.message || 'Afbeelding actie is mislukt.', 'error');
     }
+  }
+
+  function handlePendingImageAction(target) {
+    const featuredId = target.dataset.pendingFeatured;
+    const deleteId = target.dataset.pendingDelete;
+    if (!featuredId && !deleteId) return false;
+
+    const id = featuredId || deleteId;
+    const index = state.pendingFiles.findIndex(item => item.id === id);
+    if (index < 0) return true;
+
+    if (featuredId) {
+      ensureSinglePendingFeatured(featuredId);
+    }
+
+    if (deleteId) {
+      const [removed] = state.pendingFiles.splice(index, 1);
+      if (removed?.previewUrl) URL.revokeObjectURL(removed.previewUrl);
+      if (state.pendingFiles.length && !state.pendingFiles.some(item => item.isFeatured)) {
+        ensureSinglePendingFeatured(state.pendingFiles[0].id);
+      }
+    }
+
+    const currentVehicle = selectedVehicle();
+    renderImageList(currentVehicle || readFormVehicle());
+    renderSocial({ ...readFormVehicle(), extras: getFeatureValues() });
+    message(state.pendingFiles.length ? `${state.pendingFiles.length} foto(s) klaar om te uploaden in gekozen volgorde.` : '', '');
+    return true;
   }
 
   function handleFeatureAction(target) {
@@ -394,7 +555,7 @@
 
   function exportCsv() {
     const rows = [
-      ['title', 'brand', 'model', 'year', 'price', 'mileage', 'fuel', 'transmission', 'condition', 'status', 'visible'],
+      ['title', 'brand', 'model', 'year', 'price', 'mileage', 'fuel', 'engine', 'vermogen', 'transmission', 'condition', 'status', 'visible'],
       ...state.vehicles.map(vehicle => [
         title(vehicle),
         vehicle.brand,
@@ -403,6 +564,8 @@
         vehicle.price,
         vehicle.mileage,
         vehicle.fuel,
+        vehicle.engine,
+        vehicle.vermogen,
         vehicle.transmission,
         vehicle.condition === 'new' ? 'Nieuw' : 'Gebruikt',
         vehicle.status,
@@ -501,8 +664,9 @@
     els.exportCsvBtn.addEventListener('click', exportCsv);
 
     els.imageInput.addEventListener('change', () => {
-      state.pendingFiles = Array.from(els.imageInput.files || []);
-      message(state.pendingFiles.length ? `${state.pendingFiles.length} foto(s) klaar om te uploaden. Klik Opslaan.` : '', '');
+      setPendingFiles(Array.from(els.imageInput.files || []));
+      renderImageList(selectedVehicle() || readFormVehicle());
+      message(state.pendingFiles.length ? `${state.pendingFiles.length} foto(s) klaar om te uploaden. Sorteer ze en klik Opslaan.` : '', '');
       renderSocial({ ...readFormVehicle(), extras: getFeatureValues() });
     });
 

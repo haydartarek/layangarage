@@ -361,6 +361,8 @@ Current migrations:
 4. `004_add_owner_admin_user.sql`
 5. `005_add_vehicle_condition_field.sql`
 6. `006_migrate_vehicle_images_to_storage.sql`
+7. `007_add_vehicle_vermogen_field.sql`
+8. `008_backfill_vehicle_vermogen.sql`
 
 Current production counts:
 

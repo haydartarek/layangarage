@@ -489,10 +489,13 @@ h3 {
 }
 
 .image-admin-card {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--white);
   overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .image-admin-card img {
@@ -504,14 +507,78 @@ h3 {
 
 .image-admin-actions {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   padding: 9px;
+}
+
+.image-drag-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.72);
+  color: var(--white);
+  cursor: grab;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  touch-action: none;
+}
+
+.image-drag-handle:active {
+  cursor: grabbing;
+}
+
+.image-sortable-chosen {
+  cursor: grabbing;
+}
+
+.image-sortable-ghost {
+  opacity: 0.42;
+  outline: 3px dashed rgba(255, 139, 16, 0.55);
+  outline-offset: -3px;
+}
+
+.image-sortable-drag {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  transform: rotate(1deg);
 }
 
 .image-featured {
   outline: 3px solid var(--brand);
   outline-offset: -3px;
+}
+
+.image-pending-card {
+  border-color: rgba(255, 139, 16, 0.38);
+  background: linear-gradient(180deg, rgba(255, 243, 228, 0.65), var(--white));
+}
+
+.image-pending-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.78);
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 4px 9px;
+  backdrop-filter: blur(8px);
 }
 
 .social-panel {
