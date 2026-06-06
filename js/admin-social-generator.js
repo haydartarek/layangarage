@@ -106,7 +106,7 @@ ${CONTACT.address}
       '#AutoTeKoop',
       '#Occasiewagen',
       vehicle.brand ? `#${vehicle.brand.replace(/\s+/g, '')}` : '',
-      '#Beveren',
+      '#BeverenWaas',
       '#Antwerpen',
       '#Waasland'
     ].filter(Boolean).join(' ');

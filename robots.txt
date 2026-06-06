@@ -1,6 +1,5 @@
 User-agent: *
-Disallow: /admin/
-Disallow: /privacy.html
-Disallow: /algemene-voorwaarden.html
+# Admin URLs intentionally remain crawlable so their HTTP/meta noindex rules can be processed.
+Allow: /
 
 Sitemap: https://layangaragebv.be/sitemap.xml

@@ -21,7 +21,6 @@ function injectStaticSchemaScripts() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Layan Garage BV",
-        "alternateName": "Layan Garage",
         "url": "https://layangaragebv.be/",
         "inLanguage": "nl-BE",
         "publisher": {
@@ -45,16 +44,18 @@ function injectStaticSchemaScripts() {
         "image": "https://layangaragebv.be/assets/images/share-layan-garage.jpg",
         "description": "Layan Garage BV is een autogarage in Beveren-Waas voor gecontroleerde occasiewagens, auto onderhoud alle merken, gratis computerdiagnose, depannage, remmen, banden en airconditioning in de regio Antwerpen en Waasland.",
         "keywords": [
-            "autogarage Beveren-Waas",
-            "occasiewagen kopen Beveren",
-            "tweedehands auto Waasland",
-            "gratis computerdiagnose auto Beveren-Waas",
-            "auto onderhoud alle merken Beveren",
-            "depannage Beveren-Waas",
-            "pechhulp Antwerpen Waasland",
-            "airconditioning auto Beveren",
-            "banden wisselen Beveren-Waas",
-            "auto verkopen Waasland eerlijke prijs"
+            "airco bijvullen Beveren-Waas",
+            "olie verversen Beveren-Waas",
+            "distributieriem vervangen Beveren-Waas",
+            "auto onderhoud Beveren-Waas",
+            "remmen vervangen Beveren-Waas",
+            "bandenservice Beveren-Waas",
+            "diagnose auto Beveren-Waas",
+            "computerdiagnose Beveren-Waas",
+            "startproblemen wagen Beveren",
+            "auto verkopen Beveren-Waas",
+            "occasiewagens Beveren-Waas",
+            "tweedehands auto's Beveren-Waas"
         ],
         "telephone": "+32486890002",
         "email": "info@layangaragebv.be",
@@ -69,20 +70,19 @@ function injectStaticSchemaScripts() {
         },
         "geo": {
             "@type": "GeoCoordinates",
-            "latitude": 51.20639,
-            "longitude": 4.24278
+            "latitude": 51.2183,
+            "longitude": 4.2522
         },
         "hasMap": "https://www.google.com/maps/search/?api=1&query=Albert%20Panisstraat%20130%2C%209120%20Beveren-Waas%2C%20Belgium",
         "areaServed": [
-            "Beveren-Waas",
-            "Antwerpen",
-            "Waasland",
-            "Sint-Niklaas",
-            "Mechelen",
-            "Gent"
+            { "@type": "City", "name": "Beveren-Waas" },
+            { "@type": "City", "name": "Antwerpen" },
+            { "@type": "AdministrativeArea", "name": "Waasland" },
+            { "@type": "City", "name": "Sint-Niklaas" },
+            { "@type": "City", "name": "Mechelen" },
+            { "@type": "City", "name": "Gent" }
         ],
         "priceRange": "$$",
-        "openingHours": "Mo-Sa 09:00-18:00",
         "openingHoursSpecification": [
             {
                 "@type": "OpeningHoursSpecification",
@@ -111,7 +111,7 @@ function injectStaticSchemaScripts() {
                     "@type": "Offer",
                     "itemOffered": {
                         "@type": "Service",
-                        "name": "Gratis computerdiagnose auto Beveren-Waas",
+                        "name": "Diagnose auto en computerdiagnose Beveren-Waas",
                         "serviceType": "Computerdiagnose en motordiagnose"
                     }
                 },
@@ -119,8 +119,48 @@ function injectStaticSchemaScripts() {
                     "@type": "Offer",
                     "itemOffered": {
                         "@type": "Service",
-                        "name": "Auto onderhoud alle merken Beveren",
+                        "name": "Auto onderhoud Beveren-Waas",
                         "serviceType": "Onderhoud en herstellingen"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Airco bijvullen Beveren-Waas",
+                        "serviceType": "Airconditioning controleren, reinigen en bijvullen"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Olie verversen Beveren-Waas",
+                        "serviceType": "Motorolie en filters vervangen"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Distributieriem vervangen Beveren-Waas",
+                        "serviceType": "Riemen en slangen controleren en vervangen"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Remmen vervangen Beveren-Waas",
+                        "serviceType": "Remcontrole en remreparatie"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Bandenservice Beveren-Waas",
+                        "serviceType": "Banden wisselen en wielen controleren"
                     }
                 },
                 {
@@ -134,8 +174,16 @@ function injectStaticSchemaScripts() {
                 {
                     "@type": "Offer",
                     "itemOffered": {
+                        "@type": "Service",
+                        "name": "Auto verkopen Beveren-Waas",
+                        "serviceType": "Aankoop en beoordeling van tweedehands wagens"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
                         "@type": "Product",
-                        "name": "Gecontroleerde occasiewagens in Beveren"
+                        "name": "Gecontroleerde occasiewagens in Beveren-Waas"
                     }
                 }
             ]
@@ -156,7 +204,7 @@ function injectStaticSchemaScripts() {
             },
             {
                 "@type": "Question",
-                "name": "Bieden jullie auto onderhoud aan voor alle merken in Beveren?",
+                "name": "Bieden jullie auto onderhoud aan voor alle merken in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
                     "text": "Ja, Layan Garage BV verzorgt onderhoud, diagnose en herstellingen voor alle merken personenwagens en lichte bedrijfswagens in Beveren-Waas, Antwerpen en de ruime regio."
@@ -175,7 +223,7 @@ function injectStaticSchemaScripts() {
                 "name": "Is jullie autogarage open op zaterdag in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Ja, wij zijn open op zaterdag van 09:00 tot 18:00."
+                    "text": "Ja, wij zijn open op zaterdag van 09:00 tot 18:00. Maandag tot vrijdag zijn wij ook open van 09:00 tot 18:00."
                 }
             },
             {
@@ -196,10 +244,10 @@ function injectStaticSchemaScripts() {
             },
             {
                 "@type": "Question",
-                "name": "Kan ik mijn airco of banden laten controleren in Beveren-Waas?",
+                "name": "Kan ik mijn airco laten bijvullen of banden laten controleren in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Ja, u kunt bij ons terecht voor airconditioning, banden wisselen, wielcontrole en algemeen onderhoud. We combineren dit indien gewenst met een bredere controle van uw voertuig."
+                    "text": "Ja, u kunt bij ons terecht voor airco bijvullen in Beveren-Waas, bandenservice, wielcontrole en algemeen onderhoud. We combineren dit indien gewenst met een bredere controle van uw voertuig."
                 }
             }
         ]
@@ -219,19 +267,20 @@ function injectDepannageServiceSchema() {
         "name": "Depannage en pechhulp in Beveren-Waas",
         "serviceType": "Depannage, pechhulp en takeldienst in Beveren-Waas, Antwerpen en Waasland",
         "provider": {
-            "@type": "AutoDealer",
+            "@type": ["AutoDealer", "AutoRepair"],
             "name": "Layan Garage BV",
+            "url": "https://layangaragebv.be/",
             "telephone": "+32486890002"
         },
         "areaServed": [
-            "Beveren-Waas",
-            "Antwerpen",
-            "Waasland",
-            "Sint-Niklaas",
-            "Temse",
-            "Lokeren"
+            { "@type": "City", "name": "Beveren-Waas" },
+            { "@type": "City", "name": "Antwerpen" },
+            { "@type": "AdministrativeArea", "name": "Waasland" },
+            { "@type": "City", "name": "Sint-Niklaas" },
+            { "@type": "City", "name": "Temse" },
+            { "@type": "City", "name": "Lokeren" }
         ],
-        "description": "Depannage en praktische pechhulp voor bestuurders in Beveren-Waas, Antwerpen en het Waasland met panne, startproblemen of voertuigen die niet veilig verder kunnen rijden."
+        "description": "Depannage en praktische pechhulp voor bestuurders met panne, startproblemen met een wagen in Beveren-Waas of voertuigen die niet veilig verder kunnen rijden."
     };
 
     appendJsonLdSchema(schema, "depannage-service");
