@@ -827,7 +827,7 @@
   }
 
   .modal-inner {
-    grid-template-columns: 1fr;
+    display: block;
     width: calc(100vw - 18px);
     max-height: calc(100dvh - 18px);
     overflow-y: auto;
@@ -849,15 +849,17 @@
     --gallery-frame-padding: .48rem;
     align-self: start;
     justify-content: flex-start;
-    max-height: none;
+    height: 74dvh;
+    max-height: 74dvh;
     border-radius: 20px 20px 0 0;
     padding: 8px 8px 6px;
   }
 
   .gallery-main {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: auto;
     height: auto;
-    max-height: 42dvh;
+    max-height: none;
+    flex: 1 1 auto;
   }
 
   .gallery-nav {
@@ -1267,12 +1269,6 @@
     --gallery-frame-padding: .38rem;
     border-radius: 16px 16px 0 0;
     padding: 7px 7px 5px;
-  }
-
-  .gallery-main {
-    aspect-ratio: 1 / 1;
-    height: auto;
-    max-height: 36dvh;
   }
 
   .gallery-nav {
