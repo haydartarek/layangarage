@@ -266,13 +266,29 @@ function getVehicleUrl(car) {
   return url.toString();
 }
 
-function getHomepageUrl() {
-  return window.LayanVehicleStore?.getPublicUrl?.('/') || 'https://layangaragebv.be/';
+function getBrowserBasePath() {
+  return window.location.pathname
+    .replace(/\/index\.html$/i, '/')
+    .replace(/\/[^/]+\.[a-z0-9]+$/i, '/');
+}
+
+function getBrowserHomepageUrl() {
+  return getBrowserBasePath() || '/';
+}
+
+function getVehicleBrowserUrl(car) {
+  const url = new URL(window.location.href);
+  url.pathname = getBrowserBasePath();
+  url.search = '';
+  url.hash = '';
+  const slug = getVehicleSlug(car);
+  if (slug) url.searchParams.set('car', slug);
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 function updateBrowserHistory(method, state, url) {
   try {
-    const targetUrl = new URL(url);
+    const targetUrl = new URL(url, window.location.href);
     if (window.location.origin !== targetUrl.origin) return false;
     history[method](state, '', `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`);
     return true;
@@ -283,9 +299,8 @@ function updateBrowserHistory(method, state, url) {
 }
 
 function normalizeHomepagePath() {
-  if (window.location.origin !== new URL(getHomepageUrl()).origin) return;
   if (!/\/index\.html$/i.test(window.location.pathname) || getRequestedVehicleSlug()) return;
-  updateBrowserHistory('replaceState', history.state, getHomepageUrl());
+  updateBrowserHistory('replaceState', history.state, getBrowserHomepageUrl());
 }
 
 function setMetaContent(selector, content) {
@@ -329,7 +344,7 @@ function restoreHomepageMetadata() {
 
 function updateVehicleUrlState(car, mode = 'push') {
   const method = mode === 'replace' ? 'replaceState' : 'pushState';
-  updateBrowserHistory(method, { vehicleModal: true, vehicleSlug: getVehicleSlug(car) }, getVehicleUrl(car));
+  updateBrowserHistory(method, { vehicleModal: true, vehicleSlug: getVehicleSlug(car) }, getVehicleBrowserUrl(car));
 }
 
 function escapeHtml(value) {
@@ -395,7 +410,7 @@ function openRequestedVehicleFromUrl() {
   if (!requestedSlug) return;
   const car = availableCars.find(item => item.slug === requestedSlug || item.folder === requestedSlug);
   if (!car) {
-    updateBrowserHistory('replaceState', null, getHomepageUrl());
+    updateBrowserHistory('replaceState', null, getBrowserHomepageUrl());
     return;
   }
   openModal(car.id, { updateUrl: false, urlMode: 'replace' });
@@ -672,7 +687,7 @@ function closeModal({ updateUrl = true } = {}) {
   modal.classList.remove('open');
   document.body.style.overflow = '';
   currentCarId = null;
-  if (updateUrl) updateBrowserHistory('replaceState', null, getHomepageUrl());
+  if (updateUrl) updateBrowserHistory('replaceState', null, getBrowserHomepageUrl());
   restoreHomepageMetadata();
   if (lastFocusedElement) lastFocusedElement.focus();
   lastFocusedElement = null;
