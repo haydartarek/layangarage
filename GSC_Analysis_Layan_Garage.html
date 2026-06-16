@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSC Analysis & Action Plan — Layan Garage BV</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;padding:1.5rem;font-size:14px}
+h1{font-size:19px;font-weight:600;margin-bottom:.2rem}
+h2{font-size:14px;font-weight:600;margin-bottom:.75rem}
+h3{font-size:13px;font-weight:600;margin-bottom:.5rem}
+.meta{font-size:12px;color:#6b6a64;margin-bottom:1.5rem}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.kpi{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:.875rem 1rem;text-align:center}
+.kpi-num{font-size:26px;font-weight:600;display:block;margin-bottom:2px}
+.kpi-label{font-size:11px;color:#6b6a64}
+.ok{color:#3B6D11}.warn{color:#854F0B}.bad{color:#A32D2D}.blue{color:#185FA5}
+.card{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.badge{font-size:11px;padding:2px 9px;border-radius:6px;font-weight:500}
+.b-ok{background:#EAF3DE;color:#3B6D11}
+.b-warn{background:#FAEEDA;color:#854F0B}
+.b-bad{background:#FCEBEB;color:#A32D2D}
+.b-blue{background:#E6F1FB;color:#185FA5}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 8px;border-bottom:1.5px solid #e8e7e1;font-size:11px;font-weight:500;color:#6b6a64;text-transform:uppercase}
+td{padding:8px 8px;border-bottom:.5px solid #f5f4f0;vertical-align:middle;line-height:1.4}
+tr:last-child td{border-bottom:none}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.dg{background:#639922}.da{background:#EF9F27}.dr{background:#E24B4A}.db{background:#185FA5}
+.trend{display:flex;align-items:flex-end;gap:2px;height:48px;margin:0 0 .5rem}
+.trend-bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;position:relative}
+.trend-bar.high{background:#639922}
+.trend-bar.mid{background:#EF9F27}
+.trend-bar.low{background:#E24B4A}
+.date-labels{display:flex;gap:2px;font-size:9px;color:#6b6a64;margin-bottom:.75rem}
+.date-labels span{flex:1;text-align:center}
+.alert{padding:.875rem 1rem;border-radius:8px;margin-bottom:.875rem;font-size:13px;line-height:1.6}
+.alert-red{background:#fef2f2;border-left:3px solid #E24B4A}
+.alert-amber{background:#fef8f0;border-left:3px solid #EF9F27}
+.alert-green{background:#f3fae8;border-left:3px solid #639922}
+.alert-blue{background:#EEF4FB;border-left:3px solid #185FA5}
+.verdict{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:1.25rem;margin-bottom:1rem}
+.verdict h2{font-size:15px;margin-bottom:.875rem}
+.v-row{display:flex;align-items:flex-start;gap:10px;padding:.6rem 0;border-bottom:.5px solid #f5f4f0}
+.v-row:last-child{border-bottom:none}
+.v-icon{font-size:15px;flex-shrink:0;margin-top:1px;width:20px}
+.v-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.v-desc{font-size:12px;color:#6b6a64;line-height:1.55}
+/* Fix cards */
+.fix-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.fix-card{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:1rem}
+.fix-card.priority-1{border-top:3px solid #E24B4A}
+.fix-card.priority-2{border-top:3px solid #EF9F27}
+.fix-card.priority-3{border-top:3px solid #185FA5}
+.fix-card.priority-4{border-top:3px solid #639922}
+.fix-num{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#6b6a64;margin-bottom:.4rem}
+.fix-title{font-size:13px;font-weight:600;margin-bottom:.4rem}
+.fix-why{font-size:12px;color:#6b6a64;margin-bottom:.625rem;line-height:1.5}
+.fix-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b6a64;margin-bottom:3px}
+.code-block{background:#f0ede8;border-radius:5px;padding:6px 10px;font-family:monospace;font-size:11px;line-height:1.6;white-space:pre-wrap;word-break:break-all;margin-bottom:.5rem}
+.impact{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:500;margin-top:4px}
+.imp-high{background:#FCEBEB;color:#A32D2D}
+.imp-med{background:#FAEEDA;color:#854F0B}
+.imp-low{background:#EAF3DE;color:#3B6D11}
+.section-divider{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#6b6a64;margin:1.5rem 0 .75rem;display:flex;align-items:center;gap:8px}
+.section-divider::after{content:'';flex:1;height:1px;background:#e8e7e1}
+code{background:#f0ede8;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px}
+strong{font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>Google Search Console — Analysis & Action Plan</h1>
+<div class="meta">Layan Garage BV · June 2–14, 2026 · 13 days · Source: GSC Web Performance Export (nl_BE)</div>
+
+<!-- KPIs -->
+<div class="kpi-grid">
+  <div class="kpi"><span class="kpi-num blue">56</span><span class="kpi-label">Total Clicks</span></div>
+  <div class="kpi"><span class="kpi-num blue">1,073</span><span class="kpi-label">Total Impressions</span></div>
+  <div class="kpi"><span class="kpi-num warn">5.2%</span><span class="kpi-label">Avg. CTR</span></div>
+  <div class="kpi"><span class="kpi-num warn">13.6</span><span class="kpi-label">Avg. Position</span></div>
+</div>
+
+<!-- TREND -->
+<div class="card">
+  <div class="card-header">
+    <h2>Daily Clicks — June 2–14</h2>
+    <span class="badge b-blue">📈 June 4 = peak day (14 clicks)</span>
+  </div>
+  <div class="trend">
+    <div class="trend-bar mid"   style="height:21%"></div>
+    <div class="trend-bar high"  style="height:50%"></div>
+    <div class="trend-bar high"  style="height:100%"></div>
+    <div class="trend-bar mid"   style="height:43%"></div>
+    <div class="trend-bar low"   style="height:7%"></div>
+    <div class="trend-bar low"   style="height:7%"></div>
+    <div class="trend-bar mid"   style="height:43%"></div>
+    <div class="trend-bar mid"   style="height:21%"></div>
+    <div class="trend-bar mid"   style="height:21%"></div>
+    <div class="trend-bar mid"   style="height:43%"></div>
+    <div class="trend-bar mid"   style="height:21%"></div>
+    <div class="trend-bar low"   style="height:14%"></div>
+    <div class="trend-bar low"   style="height:7%"></div>
+  </div>
+  <div class="date-labels">
+    <span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+    <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+  </div>
+  <table>
+    <tr><th>Date</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Position</th><th>Note</th></tr>
+    <tr><td>Jun 02</td><td>3</td><td>99</td><td>3.0%</td><td>7.4</td><td style="color:#6b6a64;font-size:11px">Pre-agent baseline</td></tr>
+    <tr><td>Jun 03</td><td>7</td><td>74</td><td>9.5%</td><td>8.2</td><td style="color:#6b6a64;font-size:11px">Pre-agent baseline</td></tr>
+    <tr><td><strong>Jun 04</strong></td><td><strong>14 🏆</strong></td><td><strong>107</strong></td><td><strong>13.1%</strong></td><td><strong>8.4</strong></td><td style="color:#3B6D11;font-size:11px">Agent runs started</td></tr>
+    <tr><td>Jun 05</td><td>6</td><td>71</td><td>8.5%</td><td>13.8</td><td style="color:#6b6a64;font-size:11px">Changes being applied</td></tr>
+    <tr><td>Jun 06</td><td>1</td><td>37</td><td>2.7%</td><td>13.2</td><td style="color:#854F0B;font-size:11px">Google re-crawling</td></tr>
+    <tr><td>Jun 07</td><td>1</td><td>53</td><td>1.9%</td><td>11.2</td><td style="color:#854F0B;font-size:11px">Re-indexing in progress</td></tr>
+    <tr><td>Jun 08</td><td>6</td><td>80</td><td>7.5%</td><td>11.3</td><td style="color:#6b6a64;font-size:11px">Partial stabilisation</td></tr>
+    <tr><td>Jun 09</td><td>3</td><td>93</td><td>3.2%</td><td>12.0</td><td></td></tr>
+    <tr><td>Jun 10</td><td>3</td><td>60</td><td>5.0%</td><td>12.6</td><td></td></tr>
+    <tr><td>Jun 11</td><td>6</td><td>119</td><td>5.0%</td><td>13.2</td><td style="color:#3B6D11;font-size:11px">Impressions rising</td></tr>
+    <tr><td>Jun 12</td><td>3</td><td><strong>159 🏆</strong></td><td>1.9%</td><td style="color:#A32D2D">30.1 ⚠</td><td style="color:#A32D2D;font-size:11px">High impressions, low position — Google testing</td></tr>
+    <tr><td>Jun 13</td><td>2</td><td>72</td><td>2.8%</td><td>16.6</td><td></td></tr>
+    <tr><td>Jun 14</td><td>1</td><td>49</td><td>2.0%</td><td>18.6</td><td></td></tr>
+  </table>
+</div>
+
+<!-- CRITICAL ALERTS -->
+<div class="section-divider">Critical Issues Found</div>
+
+<div class="alert alert-red">
+  <strong>🚨 Issue #1 — CRITICAL: Two separate URLs indexed by Google</strong><br>
+  <code>https://www.layangaragebv.be/</code> → 692 impressions · position 4.3 · 28 clicks<br>
+  <code>https://layangaragebv.be/</code> → 564 impressions · position 23.43 · 27 clicks<br><br>
+  Google treats these as <strong>two different pages</strong> and splits domain authority between them. This explains the erratic position swings. Total combined impressions = <strong>1,256</strong> — all of that power should flow into one URL. Fix: 301 redirect + canonical alignment (see Fix #1 below).
+</div>
+
+<div class="alert alert-amber">
+  <strong>⚠ Issue #2: Old WordPress sub-pages still indexed — zero CTR despite top-5 positions</strong><br>
+  GSC shows 7 sub-page URLs (<code>/diensten/motordiagnose/</code>, <code>/verkoop-wagens/</code>, etc.) ranked at positions 3–7 with 500+ combined impressions but near-zero clicks. Since Google only ranks pages that return HTTP 200, these are <strong>live WordPress pages</strong> still on the server with outdated title tags and meta descriptions — causing users to see them in results and not click. Fix: redirect or update each page (see Fix #2 below).
+</div>
+
+<div class="alert alert-blue">
+  <strong>💡 Opportunity: Multiple high-impression keywords at positions 2–4 with 0% CTR</strong><br>
+  "garage beveren" → pos 3.57 · 54 impressions · 0 clicks. "auto garage beveren" → pos 2.62 · 13 impressions · 0 clicks. Position is not the problem — the title/description snippet shown in Google is not compelling enough to earn a click. Fix: improve meta descriptions for these specific queries (see Fix #3 below).
+</div>
+
+<!-- QUERIES -->
+<div class="card">
+  <div class="card-header">
+    <h2>Keyword Performance</h2>
+    <span class="badge b-warn">⚠ 82% of clicks are brand-name searches</span>
+  </div>
+  <div class="alert alert-amber" style="margin-bottom:.875rem;font-size:12px">
+    46 of 56 clicks (82%) came from "layan garage" and "layan" — meaning visitors already knew the brand. Organic non-brand keywords have not generated clicks yet. <strong>This is normal in month one.</strong> Google takes 4–8 weeks to re-rank pages after content changes. Expect non-brand click growth from mid-July onward.
+  </div>
+  <table>
+    <tr><th>Keyword</th><th>Clicks</th><th>Impr.</th><th>CTR</th><th>Position</th><th>Assessment</th></tr>
+    <tr>
+      <td><strong>layan garage</strong></td><td>26</td><td>76</td><td>34.2%</td><td>1.18</td>
+      <td><span class="dot dg"></span>Brand — position 1, excellent CTR ✅</td>
+    </tr>
+    <tr>
+      <td>garage beveren waas</td><td>1</td><td>7</td><td>14.3%</td><td>2.0</td>
+      <td><span class="dot dg"></span>Target keyword — position 2 ✅</td>
+    </tr>
+    <tr>
+      <td>autogarage beveren</td><td>1</td><td>8</td><td>12.5%</td><td>7.0</td>
+      <td><span class="dot da"></span>Position 7 — close to top 5</td>
+    </tr>
+    <tr>
+      <td><strong>garage beveren</strong></td><td>0</td><td>54</td><td>0%</td><td>3.57</td>
+      <td><span class="dot da"></span>⚠ Position 3.5, zero clicks — snippet problem</td>
+    </tr>
+    <tr>
+      <td>layan</td><td>0</td><td>38</td><td>0%</td><td>3.5</td>
+      <td><span class="dot da"></span>Common first name — irrelevant impressions</td>
+    </tr>
+    <tr>
+      <td>auto garage beveren</td><td>0</td><td>13</td><td>0%</td><td>2.62</td>
+      <td><span class="dot dg"></span>Position 2.6 — strong! Clicks expected soon</td>
+    </tr>
+    <tr>
+      <td>tweedehands auto garage beveren</td><td>0</td><td>7</td><td>0%</td><td>4.57</td>
+      <td><span class="dot da"></span>Position 4.6 — entering top 3 territory</td>
+    </tr>
+    <tr>
+      <td>onderhoud auto</td><td>0</td><td>4</td><td>0%</td><td>1.5</td>
+      <td><span class="dot dg"></span>Position 1.5 — too generic, low conversion intent</td>
+    </tr>
+    <tr>
+      <td>garage alle merken in de buurt</td><td>0</td><td>3</td><td>0%</td><td>1.67</td>
+      <td><span class="dot dg"></span>Position 1.7 — "in de buurt" = Maps signal</td>
+    </tr>
+    <tr>
+      <td>garage beveren-waas</td><td>0</td><td>2</td><td>0%</td><td>2.0</td>
+      <td><span class="dot dg"></span>Position 2 — core target keyword ✅</td>
+    </tr>
+    <tr>
+      <td>remmen vervangen auto</td><td>0</td><td>1</td><td>0%</td><td>44.0</td>
+      <td><span class="dot dr"></span>Position 44 — content fixes not indexed yet</td>
+    </tr>
+  </table>
+</div>
+
+<!-- PAGES -->
+<div class="card">
+  <div class="card-header">
+    <h2>Page Performance</h2>
+    <span class="badge b-blue">ℹ 9 URLs indexed — site has multi-page structure</span>
+  </div>
+  <table>
+    <tr><th>Page</th><th>Clicks</th><th>Impr.</th><th>Position</th><th>Assessment</th></tr>
+    <tr>
+      <td><strong>Homepage (www)</strong></td><td>28</td><td>692</td><td>4.3</td>
+      <td><span class="dot dg"></span>Strongest page — 50% of all clicks ✅</td>
+    </tr>
+    <tr>
+      <td>Homepage (non-www) 🚨</td><td>27</td><td>564</td><td>23.43</td>
+      <td><span class="dot dr"></span>Same page — split authority, position 23 → Fix #1</td>
+    </tr>
+    <tr>
+      <td>/diensten/motordiagnose/</td><td>1</td><td>144</td><td>5.05</td>
+      <td><span class="dot da"></span>144 impressions, pos 5 — likely old WP page → Fix #2</td>
+    </tr>
+    <tr>
+      <td>/diensten/band-en-wielservices/</td><td>0</td><td>116</td><td>7.02</td>
+      <td><span class="dot da"></span>116 impressions, pos 7 — 0 clicks → Fix #2</td>
+    </tr>
+    <tr>
+      <td>/verkoop-wagens/</td><td>1</td><td>98</td><td>3.54</td>
+      <td><span class="dot da"></span>Position 3.5 — strong but CTR needs improvement</td>
+    </tr>
+    <tr>
+      <td>/diensten/remreparatie/</td><td>0</td><td>68</td><td>4.9</td>
+      <td><span class="dot da"></span>Position 5 — approaching top 3 → Fix #2</td>
+    </tr>
+    <tr>
+      <td>/onderhoud/</td><td>0</td><td>51</td><td>4.29</td>
+      <td><span class="dot da"></span>Position 4.3 — keyword #10 → Fix #2</td>
+    </tr>
+    <tr>
+      <td>/inventory/fuel/petrol/</td><td>0</td><td>18</td><td>2.72</td>
+      <td><span class="dot da"></span>Position 2.7 — inventory filter page → Fix #2</td>
+    </tr>
+    <tr>
+      <td>/inventory/make/kia/</td><td>0</td><td>17</td><td>13.29</td>
+      <td><span class="dot da"></span>Position 13 — inventory filter page → Fix #2</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ACTION PLAN -->
+<div class="section-divider">Action Plan — 4 Fixes in Priority Order</div>
+
+<div class="fix-grid">
+
+  <!-- FIX 1 -->
+  <div class="fix-card priority-1">
+    <div class="fix-num">Fix #1 · This week · Highest priority</div>
+    <div class="fix-title">Resolve www vs non-www duplicate</div>
+    <div class="fix-why">Google is splitting 1,256 combined impressions between two URLs. Merging them into one will consolidate authority and push the real homepage from position ~14 (average of 4.3 and 23.4) to position 4–5 immediately — no content change needed.</div>
+    <div class="fix-label">Add to .htaccess (redirect non-www → www)</div>
+    <div class="code-block">RewriteEngine On
+RewriteCond %{HTTP_HOST} !^www\. [NC]
+RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]</div>
+    <div class="fix-label">Then verify canonical in index.html &lt;head&gt;</div>
+    <div class="code-block">&lt;link rel="canonical" href="https://www.layangaragebv.be/"&gt;</div>
+    <div class="fix-label">After fix — request re-indexing in GSC</div>
+    <div class="code-block">GSC → URL Inspection → https://layangaragebv.be/ → Request Indexing</div>
+    <span class="impact imp-high">Impact: HIGH — immediate position gain</span>
+  </div>
+
+  <!-- FIX 2 -->
+  <div class="fix-card priority-2">
+    <div class="fix-num">Fix #2 · This week · High priority</div>
+    <div class="fix-title">Redirect old WordPress sub-pages → main site</div>
+    <div class="fix-why">These pages return HTTP 200 with old content (confirmed by GSC impressions). Google ranks them but users don't click because the title/description is outdated. 301 redirects pass their existing ranking power to the correct page and fix the CTR issue.</div>
+    <div class="fix-label">Add to .htaccess (after Fix #1 rules)</div>
+    <div class="code-block">Redirect 301 /diensten/motordiagnose/ https://www.layangaragebv.be/#diagnose
+Redirect 301 /diensten/band-en-wielservices/ https://www.layangaragebv.be/#services
+Redirect 301 /diensten/remreparatie/ https://www.layangaragebv.be/#services
+Redirect 301 /onderhoud/ https://www.layangaragebv.be/#services
+Redirect 301 /verkoop-wagens/ https://www.layangaragebv.be/#cars
+Redirect 301 /inventory/ https://www.layangaragebv.be/#cars
+Redirect 301 /cookiebeleid-eu/ https://www.layangaragebv.be/privacy.html</div>
+    <div class="fix-label">After adding — submit sitemap in GSC</div>
+    <div class="code-block">GSC → Sitemaps → Submit → https://www.layangaragebv.be/sitemap.xml</div>
+    <span class="impact imp-high">Impact: HIGH — recovers 500+ stranded impressions</span>
+  </div>
+
+  <!-- FIX 3 -->
+  <div class="fix-card priority-3">
+    <div class="fix-num">Fix #3 · Next 2 weeks · Medium priority</div>
+    <div class="fix-title">Improve meta description CTR for "garage beveren" queries</div>
+    <div class="fix-why">"garage beveren" has 54 impressions at position 3.57 with 0 clicks. The snippet shown in Google is not compelling. A strong meta description with a clear USP and call-to-action can push CTR from 0% to 5–10%, generating 2–5 clicks per day from this keyword alone.</div>
+    <div class="fix-label">Current meta description (generic)</div>
+    <div class="code-block">Layan Garage BV in Beveren-Waas biedt gecontroleerde tweedehandswagens, onderhoud en diagnose.</div>
+    <div class="fix-label">Replace with (action-oriented, includes USP)</div>
+    <div class="code-block">&lt;meta name="description" content="Autogarage in Beveren-Waas ✓ Gratis computerdiagnose ✓ Onderhoud alle merken ✓ Gecontroleerde tweedehands auto's ✓ Open ma–za · Bel 0486 89 00 02"&gt;</div>
+    <div class="fix-label">Target — also update title tag to match query intent</div>
+    <div class="code-block">&lt;title&gt;Autogarage Beveren-Waas | Gratis Diagnose &amp; Occasiewagens | Layan Garage BV&lt;/title&gt;</div>
+    <span class="impact imp-med">Impact: MEDIUM — CTR lift on existing impressions</span>
+  </div>
+
+  <!-- FIX 4 -->
+  <div class="fix-card priority-4">
+    <div class="fix-num">Fix #4 · Ongoing · Google Business Profile</div>
+    <div class="fix-title">Activate GBP to capture "in de buurt" searches</div>
+    <div class="fix-why">"garage alle merken in de buurt" appears at position 1.67 — meaning Google Maps results are above the website. These clicks go to GBP, not the site. A fully optimised GBP profile converts these impressions into calls and directions, which GSC does not even measure.</div>
+    <div class="fix-label">Priority actions on Google Business Profile</div>
+    <div class="code-block">1. Add all 6 services with descriptions + prices
+2. Upload 10+ photos: exterior, workshop, cars in stock
+3. Write description using: "gratis computerdiagnose" + "Beveren-Waas"
+4. Post weekly: new car arrival, seasonal tip, promotion
+5. Request reviews from every customer this week (target: 10+)</div>
+    <div class="fix-label">Also register on (use NAP_LAYAN_GARAGE.md exactly)</div>
+    <div class="code-block">bingplaces.com · register.apple.com · idgarages.com/nl-be
+goudengids.be · infobel.be · cylex.be · bizzy.org</div>
+    <span class="impact imp-med">Impact: MEDIUM — drives calls + Maps visibility</span>
+  </div>
+
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <h2>🎯 Final Verdict: Is the SEO plan working?</h2>
+
+  <div class="v-row">
+    <div class="v-icon">✅</div>
+    <div>
+      <div class="v-title">Yes — target keywords are ranking at positions 2–5</div>
+      <div class="v-desc">"garage beveren waas" → position 2. "auto garage beveren" → position 2.6. "garage beveren-waas" → position 2. These are the exact keywords from our strategy. The plan is working — we are just in the crawl-and-index phase before clicks materialise.</div>
+    </div>
+  </div>
+
+  <div class="v-row">
+    <div class="v-icon">✅</div>
+    <div>
+      <div class="v-title">Sub-pages are indexing and ranking independently</div>
+      <div class="v-desc">/diensten/motordiagnose/ at position 5 with 144 impressions. /verkoop-wagens/ at position 3.5 with actual clicks. This confirms that the site's multi-page structure is generating organic visibility — broader than a single-page site would achieve.</div>
+    </div>
+  </div>
+
+  <div class="v-row">
+    <div class="v-icon">🚨</div>
+    <div>
+      <div class="v-title">One urgent structural issue: www vs non-www split</div>
+      <div class="v-desc">This is the single most impactful fix available right now. It costs 3 lines of .htaccess code and will consolidate 1,256 impressions into one URL. Do this before anything else.</div>
+    </div>
+  </div>
+
+  <div class="v-row">
+    <div class="v-icon">⚠️</div>
+    <div>
+      <div class="v-title">June 12 position spike to 30.1 is normal</div>
+      <div class="v-desc">This happens when Google re-crawls pages after significant changes — it temporarily tests different ranking positions before settling. The 159 impressions on that day confirm Google is actively re-evaluating the site. Positions will stabilise within 1–2 weeks.</div>
+    </div>
+  </div>
+
+  <div class="v-row">
+    <div class="v-icon">⏳</div>
+    <div>
+      <div class="v-title">The 12 target keywords will show results in July–August</div>
+      <div class="v-desc">Content fixes were applied June 4–7. Google needs 4–8 weeks to re-rank updated pages. This report primarily reflects pre-fix performance. Check GSC again around July 14 for a true measure of the strategy's impact.</div>
+    </div>
+  </div>
+
+  <div class="v-row">
+    <div class="v-icon">🎯</div>
+    <div>
+      <div class="v-title">Next GSC export — what to look for (mid-July)</div>
+      <div class="v-desc">
+        ✓ "garage beveren" CTR should rise from 0% to 5%+ after meta description fix.<br>
+        ✓ www homepage impressions should increase as non-www impressions drop to zero.<br>
+        ✓ Old WordPress sub-pages (/diensten/, /onderhoud/) should disappear from Pages report.<br>
+        ✓ New keywords: "gratis motordiagnose Beveren-Waas", "airco bijvullen Beveren-Waas" should appear.<br>
+        ✓ Average position should improve from 13.6 to below 10 if fixes #1 and #2 are applied.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

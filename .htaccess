@@ -17,6 +17,16 @@ RewriteRule ^admin/?$ /admin/login.html [R=301,L,NE]
 RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
 RewriteRule ^index\.html$ https://layangaragebv.be/ [R=301,L]
 
+# Legacy WordPress URLs: preserve Google signals from the old site and send users
+# to the matching landing-page section instead of a 404.
+RewriteRule ^diensten/motordiagnose/?$ https://layangaragebv.be/#service-diagnose [R=301,L,NE]
+RewriteRule ^diensten/band-en-wielservices/?$ https://layangaragebv.be/#service-wheels [R=301,L,NE]
+RewriteRule ^diensten/remreparatie/?$ https://layangaragebv.be/#service-brakes [R=301,L,NE]
+RewriteRule ^verkoop-wagens/?$ https://layangaragebv.be/#cars [R=301,L,NE]
+RewriteRule ^onderhoud/?$ https://layangaragebv.be/#maintenance [R=301,L,NE]
+RewriteRule ^inventory/(?:fuel|make)/.+/?$ https://layangaragebv.be/#cars [R=301,L,NE]
+RewriteRule ^cookiebeleid-eu/?$ https://layangaragebv.be/privacy.html [R=301,L,NE]
+
 # Keep every admin-related response out of search indexes and cached snippets.
 <IfModule mod_setenvif.c>
   SetEnvIf Request_URI "^/admin(?:/|$|\.html(?:/|$))" is_admin_url=1
