@@ -590,6 +590,14 @@ Production handover:
 
 **Haydar Tarek** acts as the technical admin for production verification, deployment support, documentation, and handover acceptance.
 
+### Local SEO Delivery Status
+
+The Waze business listing conversion was approved on June 8, 2026 by Belgian Waze Global Champ and map editor Paulvdwyn. The former `Bellekens` listing at Albert Panisstraat 130 was converted to `Layan Garage BV` with the current phone number, website, categories, description, and Monday-Saturday `09:00-18:00` opening hours.
+
+- Waze editor location: [Layan Garage BV place](https://www.waze.com/en-US/editor?env=row&lon=4.2435271&lat=51.2074493&zoomLevel=20&tab=issue_tracker)
+- Waze review request: [Level 2 approval request](https://www.waze.com/discuss/t/belgium-level-2-approval-requested-for-layan-garage-bv-place-update/405855)
+- Status: approved; allow several days for the updated listing to propagate to the Waze app.
+
 ---
 
 ## License

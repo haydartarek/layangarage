@@ -26,7 +26,10 @@
 
   function vehicleUrl(vehicle) {
     if (vehicle.isVisible === false) return `${CONTACT.website}/#cars`;
-    return `${CONTACT.website}/#wagen/${encodeURIComponent(slug(vehicle))}`;
+    if (window.LayanVehicleStore?.getVehicleUrl) {
+      return window.LayanVehicleStore.getVehicleUrl(vehicle);
+    }
+    return `${CONTACT.website}/?car=${encodeURIComponent(slug(vehicle))}`;
   }
 
   function description(vehicle) {

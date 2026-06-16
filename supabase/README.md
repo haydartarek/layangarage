@@ -13,8 +13,7 @@ window.LayanSupabaseConfig = {
   url: 'https://woilhkvivdtrjxblutei.supabase.co',
   anonKey: 'sb_publishable_CvgLOsD2gPlXDjmWxXSTIA_Akk1kRml',
   storageBucket: 'vehicle-images',
-  publicSiteUrl: 'https://layangaragebv.be',
-  previewSiteUrl: 'https://haydartarek.github.io/layangarage/'
+  publicSiteUrl: 'https://layangaragebv.be'
 };
 ```
 

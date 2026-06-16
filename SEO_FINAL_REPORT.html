@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير SEO النهائي — Layan Garage BV</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;padding:1.5rem;font-size:14px}
+h1{font-size:20px;font-weight:600;margin-bottom:.2rem}
+.meta{font-size:12px;color:#6b6a64;margin-bottom:1.5rem}
+.phase{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:1rem}
+.phase-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem}
+.phase-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.badge{font-size:11px;padding:2px 9px;border-radius:6px;font-weight:500}
+.b-done{background:#EAF3DE;color:#3B6D11}
+.b-next{background:#FAEEDA;color:#854F0B}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:right;padding:6px 8px;border-bottom:1.5px solid #f0ede8;font-size:11px;font-weight:500;color:#6b6a64;text-transform:uppercase}
+td{padding:7px 8px;border-bottom:.5px solid #f5f4f0;vertical-align:middle;line-height:1.4}
+tr:last-child td{border-bottom:none}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:5px;flex-shrink:0}
+.dg{background:#639922}.da{background:#EF9F27}.dr{background:#E24B4A}
+.scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+.sc{background:#fff;border:1px solid #e8e7e1;border-radius:10px;padding:.875rem;text-align:center}
+.sc-num{font-size:24px;font-weight:600;display:block;margin-bottom:3px}
+.sc-label{font-size:11px;color:#6b6a64}
+.ok-big{color:#3B6D11}.warn-big{color:#854F0B}.bad-big{color:#A32D2D}
+.next-box{background:#fffbf0;border:1px solid #f5d78e;border-radius:10px;padding:1rem 1.25rem}
+.next-box h2{font-size:13px;font-weight:600;margin-bottom:.75rem}
+.next-row{display:flex;align-items:flex-start;gap:10px;padding:.5rem 0;border-bottom:.5px solid #f5f0e0}
+.next-row:last-child{border-bottom:none}
+.next-num{width:22px;height:22px;border-radius:50%;background:#EF9F27;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.next-body{flex:1}
+.next-title{font-size:13px;font-weight:500}
+.next-desc{font-size:12px;color:#6b6a64;margin-top:2px;line-height:1.5}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:10px;padding:2px 7px;border-radius:10px;background:#f0ede8;color:#6b6a64}
+strong{font-weight:600}
+@media(max-width:760px){
+body{padding:.75rem}
+.scores{grid-template-columns:1fr 1fr}
+.phase{padding:.9rem}
+.phase-header{align-items:flex-start;gap:8px}
+table{display:block;overflow-x:auto}
+th,td{min-width:130px}
+}
+</style>
+</head>
+<body>
+
+<h1>تقرير SEO النهائي — Layan Garage BV</h1>
+<div class="meta">تاريخ آخر تحديث: 7 يونيو 2026 · النطاق: تدقيق SEO التقني والمحتوى المحلي · المصدر: ملفات المشروع والتحقق الآلي</div>
+
+<!-- SCORES -->
+<div class="scores">
+  <div class="sc"><span class="sc-num ok-big">88</span><span class="sc-label">Schema.org</span></div>
+  <div class="sc"><span class="sc-num ok-big">82</span><span class="sc-label">Technisch SEO</span></div>
+  <div class="sc"><span class="sc-num ok-big">79</span><span class="sc-label">On-page content</span></div>
+  <div class="sc"><span class="sc-num warn-big">58</span><span class="sc-label">Local SEO</span></div>
+  <div class="sc"><span class="sc-num bad-big">20</span><span class="sc-label">Backlinks</span></div>
+  <div class="sc"><span class="sc-num warn-big">—</span><span class="sc-label">Core Web Vitals · يحتاج قياس ميداني</span></div>
+</div>
+<div class="meta">ملاحظة: الدرجات أعلاه تقديرات تدقيقية وليست نتائج Lighthouse أو Search Console. يجب قياس Core Web Vitals من بيانات الاستخدام الفعلية.</div>
+
+<!-- PHASE 1: SCHEMA -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-title">① Schema.org — JSON-LD (seo.js)</span>
+    <span class="badge b-done">✅ مكتمل</span>
+  </div>
+  <table>
+    <tr><th>العنصر</th><th>الحالة</th></tr>
+    <tr><td><strong>@type: ["AutoDealer", "AutoRepair"]</strong> — صيغة صحيحة</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>WebSite schema</strong> بدون SearchAction وهمي لأن الموقع لا يملك بحثًا داخليًا</td><td><span class="dot dg"></span>صحيح</td></tr>
+    <tr><td><strong>GeoCoordinates</strong> 51.2074493, 4.2435271 — إحداثيات دقيقة ومؤكدة من Google Maps وWaze</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>openingHoursSpecification</strong> كـ object (ليس string)</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>FAQPage</strong> — 9 أسئلة، تطابق 100% مع HTML</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>Service (Depannage)</strong> مع areaServed كـ City objects</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>Vehicle schema</strong> بنوعي Product + Car مع UsedCondition + mileageFromOdometer</td><td><span class="dot dg"></span>مطبق</td></tr>
+    <tr><td><strong>BreadcrumbList</strong> غير مضاف لأن الموقع صفحة واحدة ولا يعرض مسار تنقل مرئيًا</td><td><span class="dot dg"></span>غير مطلوب</td></tr>
+    <tr><td>hasMap مطبق؛ currenciesAccepted وpaymentAccepted غير مضافين لعدم توفر معلومات دفع مؤكدة</td><td><span class="dot dg"></span>دقيق</td></tr>
+    <tr><td>node --check js/seo.js: صفر أخطاء</td><td><span class="dot dg"></span>مؤكد</td></tr>
+  </table>
+</div>
+
+<!-- PHASE 2: TECHNICAL -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-title">② Technisch SEO — index.html head</span>
+    <span class="badge b-done">✅ مكتمل</span>
+  </div>
+  <table>
+    <tr><th>العنصر</th><th>الحالة</th></tr>
+    <tr><td><strong>H1</strong> — Beveren-Waas + gratis computerdiagnose (keyword #01)</td><td><span class="dot dg"></span>ممتاز</td></tr>
+    <tr><td><strong>Title tag</strong> — يحتوي keyword محلي رئيسي</td><td><span class="dot dg"></span>ممتاز</td></tr>
+    <tr><td><strong>Meta description</strong> — keyword محلي + CTA</td><td><span class="dot dg"></span>ممتاز</td></tr>
+    <tr><td><strong>og:image</strong> — share-layan-garage.jpg 1200×630 مخصصة للمشاركة</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td><strong>twitter:card</strong> — summary_large_image</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td><strong>Hreflang</strong> — nl-BE + x-default</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td><strong>Canonical</strong> — https://layangaragebv.be/</td><td><span class="dot dg"></span>موجود</td></tr>
+    <tr><td><strong>Preload hero image</strong> — fetchpriority="high" (LCP)</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td><strong>Sitemap link</strong> في head</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td><strong>robots.txt</strong> — Allow: / + Sitemap reference</td><td><span class="dot dg"></span>صحيح</td></tr>
+    <tr><td><strong>sitemap.xml</strong> — XML valide، lastmod: 2026-06-07</td><td><span class="dot dg"></span>محدث</td></tr>
+    <tr><td><strong>W3C HTML validation</strong> — صفر أخطاء على 3 صفحات</td><td><span class="dot dg"></span>مؤكد</td></tr>
+    <tr><td>ARIA roles + aria-labels صحيحة على كل div</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>جميع img تملك alt + width + height</td><td><span class="dot dg"></span>مؤكد</td></tr>
+  </table>
+</div>
+
+<!-- PHASE 3: CONTENT -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-title">③ On-page content — نصوص الموقع</span>
+    <span class="badge b-done">✅ مكتمل</span>
+  </div>
+  <table>
+    <tr><th>القسم</th><th>الإصلاح</th><th>الحالة</th></tr>
+    <tr><td>Hero subtitle + lead text</td><td>"Beveren" → "Beveren-Waas"</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Olie H3</td><td>"Olie verversen...in Beveren-Waas" — keyword #05</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Riemen H3</td><td>"Distributieriem vervangen...in Beveren-Waas" — keyword #06</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Airco H3</td><td>"Airco bijvullen in Beveren-Waas" — keyword #03</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Remmen H3</td><td>"Remmen controleren en vervangen in Beveren-Waas" — keyword #02</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Cars H2</td><td>"Gecontroleerde tweedehands auto's in Beveren-Waas" — keyword #07</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Aankoop H3</td><td>"...garage in Beveren-Waas voor een eerlijk bod" — keyword #04</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Verkoop H3</td><td>"...zonder verborgen gebreken in Beveren-Waas"</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>Depannage list</td><td>Sint-Niklaas + Lokeren + Temse مضافة — keyword #11</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td>FAQ vraag 7</td><td>"bijvullen" مضاف في السؤال والجواب</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>FAQ vraag 8</td><td>"Olie verversen Beveren-Waas" — keyword #05 جديد</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td>FAQ vraag 9</td><td>"Startproblemen + WhatsApp" — keyword #09 جديد</td><td><span class="dot dg"></span>مضاف</td></tr>
+    <tr><td>Footer lead text</td><td>"Beveren" → "Beveren-Waas" — NAP critical fix</td><td><span class="dot dg"></span>مصحح</td></tr>
+    <tr><td>NAP deviations المتبقية</td><td>صفر انحرافات في الملفات التنفيذية</td><td><span class="dot dg"></span>مؤكد</td></tr>
+  </table>
+</div>
+
+<!-- KEYWORD COVERAGE -->
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-title">④ تغطية موضوعات البحث المحلية الـ12</span>
+    <span class="badge b-done">✅ 12/12 ممثلة طبيعيًا</span>
+  </div>
+  <table>
+    <tr><th>#</th><th>عبارة الاستهداف</th><th>ممثلة في</th><th>الحالة</th></tr>
+    <tr><td>01</td><td>Gratis computerdiagnose Beveren-Waas</td><td>H1 + H3 + FAQ + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>02</td><td>Remmen controleren Beveren-Waas</td><td>H3 + body + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>03</td><td>Airco bijvullen Beveren-Waas</td><td>H3 + FAQ + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>04</td><td>Auto verkopen Beveren-Waas eerlijk bod</td><td>H2 + H3 + FAQ + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>05</td><td>Olie verversen Beveren-Waas</td><td>H3 + FAQ + Schema</td><td><span class="dot dg"></span>✅ nieuw</td></tr>
+    <tr><td>06</td><td>Distributieriem vervangen Beveren-Waas</td><td>H3 + body + Schema</td><td><span class="dot dg"></span>✅ nieuw</td></tr>
+    <tr><td>07</td><td>Occasiewagen kopen Beveren-Waas proefrit</td><td>H2 + body + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>08</td><td>Autogarage open zaterdag Beveren-Waas</td><td>FAQ + openingsuren</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>09</td><td>Startproblemen wagen Beveren-Waas WhatsApp</td><td>FAQ + depannage body</td><td><span class="dot dg"></span>✅ nieuw</td></tr>
+    <tr><td>10</td><td>Autogarage Beveren-Waas alle merken</td><td>H2 maintenance + body</td><td><span class="dot dg"></span>✅</td></tr>
+    <tr><td>11</td><td>Garage Sint-Niklaas omgeving</td><td>Depannage list + Schema</td><td><span class="dot dg"></span>✅ nieuw</td></tr>
+    <tr><td>12</td><td>Pechhulp Waasland bellen WhatsApp</td><td>H2 + body + Schema</td><td><span class="dot dg"></span>✅</td></tr>
+  </table>
+</div>
+
+<!-- NEXT STEPS -->
+<div class="next-box">
+  <h2>⏭ ما تبقى — خارج الموقع (off-site)</h2>
+
+  <div class="next-row">
+    <div class="next-num">1</div>
+    <div class="next-body">
+      <div class="next-title">Google Business Profile — هذا الأسبوع</div>
+      <div class="next-desc">أضف كل 6 خدمات كـ Services، ارفع 10+ صور، اطلب reviews من أول عميل. هذا وحده يحرك Google Maps Local Pack.</div>
+      <div class="tags"><span class="tag">business.google.com</span><span class="tag">أولوية قصوى</span><span class="tag">مجاني</span></div>
+    </div>
+  </div>
+
+  <div class="next-row">
+    <div class="next-num">2</div>
+    <div class="next-body">
+      <div class="next-title">Bing Places + Apple Business Connect — 30 دقيقة</div>
+      <div class="next-desc">Bing Places يحسن الظهور في Bing وBing Maps، وApple Business Connect يحسن بيانات النشاط داخل Apple Maps وSiri.</div>
+      <div class="tags"><span class="tag">bingplaces.com</span><span class="tag">register.apple.com</span></div>
+    </div>
+  </div>
+
+  <div class="next-row">
+    <div class="next-num">3</div>
+    <div class="next-body">
+      <div class="next-title">idGarages.com — منصة متخصصة للكراجات</div>
+      <div class="next-desc">قيّم التسجيل كقناة لجلب العملاء والمواعيد وكإشارة متخصصة، بعد مراجعة تكلفة وشروط الاشتراك.</div>
+      <div class="tags"><span class="tag">idgarages.com/nl-be</span><span class="tag">يتطلب مراجعة التكلفة</span></div>
+    </div>
+  </div>
+
+  <div class="next-row">
+    <div class="next-num">4</div>
+    <div class="next-body">
+      <div class="next-title">جولة الأدلة — 8 مواقع في جلسة واحدة</div>
+      <div class="next-desc">Goudengids · Infobel · Cylex · Bizzy · Sprokkel · Yelp · Waze · BusinessVlaanderen — استخدم NAP_LAYAN_GARAGE.md حرفياً في كل تسجيل. بعض الروابط قد تكون nofollow.</div>
+      <div class="tags"><span class="tag">8 citations</span><span class="tag">NAP consistency</span><span class="tag">أسبوع 1-2</span></div>
+    </div>
+  </div>
+
+  <div class="next-row">
+    <div class="next-num">5</div>
+    <div class="next-body">
+      <div class="next-title">قياس Core Web Vitals وتحسين الصور الثقيلة المتبقية</div>
+      <div class="next-desc">Hero WebP وpreload منفذان بالفعل. المتبقي هو قياس PageSpeed ميداني وتحسين Openingsuren.jpg واستخدام نسخة WebP لصورة CTA الاحتياطية.</div>
+      <div class="tags"><span class="tag">PageSpeed Insights</span><span class="tag">تقني</span><span class="tag">مجاني</span></div>
+    </div>
+  </div>
+
+  <div class="next-row">
+    <div class="next-num">6</div>
+    <div class="next-body">
+      <div class="next-title">GBP posts أسبوعية — كل اثنين</div>
+      <div class="next-desc">سيارة جديدة، عرض موسمي، نصيحة صيانة. كل منشور مع صورة وزر CTA يساعد التفاعل والتحويل، دون اعتباره ضمانًا مباشرًا لتحسين الترتيب.</div>
+      <div class="tags"><span class="tag">مستمر</span><span class="tag">تحويل وتفاعل</span><span class="tag">مجاني</span></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

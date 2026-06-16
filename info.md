@@ -66,6 +66,37 @@ sb_publishable_CvgLOsD2gPlXDjmWxXSTIA_Akk1kRml
 - Verification Token: `522EE47F65FA868BA4A9A2D385884E32`
 - Status: uploaded to production web root and verified as publicly accessible
 
+## Local Citations / Backlinks
+
+### Cylex België
+
+- Public Listing: https://www.cylex-belgie.be/bedrijf/layan+garage-13388430.html
+- Account Email: `info@layangaragebv.be`
+- Claim Status: claimed and verified on `2026-06-08`
+- Listing Status: business name, NAP, opening hours, descriptions, keywords, Facebook, Instagram, WhatsApp, and production website verified
+- Website Link: active; Cylex reports dofollow links enabled
+- Password: intentionally not stored; keep it in the project password manager
+
+### Existing Listings
+
+- AutoScout24: https://www.autoscout24.be/nl/verkopers/layan-garage-bv
+- 2dehands: https://www.2dehands.be/u/layan-garage/38105563/
+- Companyweb: https://www.companyweb.be/nl/0770476641/layan-garage
+- Goudengids / FCR Media dashboard: https://my.fcrmedia.be/dash
+- Goudengids status: account and business listing completed and linked on `2026-06-08`
+- idGarages partner registration: https://www.idgarages.pro/nl-be
+- idGarages status: free partner-garage contact/registration request submitted on `2026-06-08`; awaiting Belux team validation by email at `info@layangaragebv.be`
+- Business Vlaanderen: https://businessvlaanderen.be/bedrijven/
+- Business Vlaanderen status: complete listing request submitted and confirmed received on `2026-06-08`; expected response within two business days
+- Infobel: https://www.infobelpro.com/contact
+- Infobel status: complete listing request sent directly from the business mailbox to `info@infobelpro.com` on `2026-06-08`; awaiting review and publication
+- Bizique: https://www.bizique.be/nl/layan-garage-%E1%B4%AE%E2%B1%BD-depannage-0486-89-00-02
+- Bizique status: correction accepted on `2026-06-08`; Bizique confirmed the company edit succeeded and is being processed. The public page still temporarily shows the old name, phone, location, and hours until propagation completes.
+- Waze Map Editor: https://www.waze.com/en-US/editor?env=row&lon=4.2435271&lat=51.2074493&zoomLevel=20&tab=issue_tracker
+- Waze review request: https://www.waze.com/discuss/t/belgium-level-2-approval-requested-for-layan-garage-bv-place-update/405855
+- Waze status: the conversion from the former `Bellekens` listing to `Layan Garage BV` was approved by Belgian Waze Global Champ and map editor Paulvdwyn on `2026-06-08`. The updated listing should become available in the Waze app within several days.
+- Waze approved details: `Layan Garage BV`, Albert Panisstraat 130, 9120 Beveren, `0486 89 00 02`, `https://layangaragebv.be/`, Monday-Saturday `09:00-18:00`, Sunday closed.
+
 ## Passwords
 
 Passwords are intentionally not stored in this file.

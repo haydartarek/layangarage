@@ -233,6 +233,13 @@ const STATUS_LABEL = {
 };
 const CONDITION_LABEL = { new: 'Nieuw', used: 'Gebruikt' };
 const FALLBACK_VEHICLE_IMAGE = 'assets/images/hero-garage.jpg';
+const DEFAULT_PAGE_TITLE = document.title;
+const DEFAULT_META_DESCRIPTION = document.querySelector('meta[name="description"]')?.content || '';
+const DEFAULT_OG_TITLE = document.querySelector('meta[property="og:title"]')?.content || '';
+const DEFAULT_OG_DESCRIPTION = document.querySelector('meta[property="og:description"]')?.content || '';
+const DEFAULT_OG_IMAGE = document.querySelector('meta[property="og:image"]')?.content || '';
+const DEFAULT_OG_URL = document.querySelector('meta[property="og:url"]')?.content || 'https://layangaragebv.be/';
+const DEFAULT_CANONICAL_URL = document.querySelector('link[rel="canonical"]')?.href || 'https://layangaragebv.be/';
 
 const iconCalendar = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
 const iconSpeed   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 12l4-4"/></svg>`;
@@ -241,6 +248,88 @@ const iconEngine  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
 
 function getVehicleTitle(car) {
   return car.title || `${car.brand} ${car.model}`.trim();
+}
+
+function getVehicleSlug(car) {
+  return window.LayanVehicleStore?.getVehicleSlug?.(car)
+    || car?.slug
+    || car?.folder
+    || '';
+}
+
+function getVehicleUrl(car) {
+  if (window.LayanVehicleStore?.getVehicleUrl) {
+    return window.LayanVehicleStore.getVehicleUrl(car);
+  }
+  const url = new URL('https://layangaragebv.be/');
+  url.searchParams.set('car', getVehicleSlug(car));
+  return url.toString();
+}
+
+function getHomepageUrl() {
+  return window.LayanVehicleStore?.getPublicUrl?.('/') || 'https://layangaragebv.be/';
+}
+
+function updateBrowserHistory(method, state, url) {
+  try {
+    const targetUrl = new URL(url);
+    if (window.location.origin !== targetUrl.origin) return false;
+    history[method](state, '', `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`);
+    return true;
+  } catch (error) {
+    console.warn('De browser-URL kon niet worden bijgewerkt.', error);
+    return false;
+  }
+}
+
+function normalizeHomepagePath() {
+  if (window.location.origin !== new URL(getHomepageUrl()).origin) return;
+  if (!/\/index\.html$/i.test(window.location.pathname) || getRequestedVehicleSlug()) return;
+  updateBrowserHistory('replaceState', history.state, getHomepageUrl());
+}
+
+function setMetaContent(selector, content) {
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute('content', content);
+}
+
+function setLinkHref(selector, href) {
+  const element = document.querySelector(selector);
+  if (element) element.setAttribute('href', href);
+}
+
+function updateVehicleMetadata(car) {
+  const title = getVehicleTitle(car);
+  const description = String(car.description || `${title} bij Layan Garage BV in Beveren-Waas.`).trim();
+  const vehicleUrl = getVehicleUrl(car);
+  const image = window.LayanVehicleStore?.getPublicUrl?.(getVehicleCoverImage(car))
+    || new URL(getVehicleCoverImage(car), 'https://layangaragebv.be/').toString();
+  document.title = `${title} | Layan Garage BV`;
+  setMetaContent('meta[name="description"]', description);
+  setMetaContent('meta[property="og:title"]', title);
+  setMetaContent('meta[property="og:description"]', description);
+  setMetaContent('meta[property="og:image"]', image);
+  setMetaContent('meta[property="og:image:secure_url"]', image);
+  setMetaContent('meta[property="og:url"]', vehicleUrl);
+  setMetaContent('meta[name="twitter:image"]', image);
+  setLinkHref('link[rel="canonical"]', vehicleUrl);
+}
+
+function restoreHomepageMetadata() {
+  document.title = DEFAULT_PAGE_TITLE;
+  setMetaContent('meta[name="description"]', DEFAULT_META_DESCRIPTION);
+  setMetaContent('meta[property="og:title"]', DEFAULT_OG_TITLE);
+  setMetaContent('meta[property="og:description"]', DEFAULT_OG_DESCRIPTION);
+  setMetaContent('meta[property="og:image"]', DEFAULT_OG_IMAGE);
+  setMetaContent('meta[property="og:image:secure_url"]', DEFAULT_OG_IMAGE);
+  setMetaContent('meta[property="og:url"]', DEFAULT_OG_URL);
+  setMetaContent('meta[name="twitter:image"]', DEFAULT_OG_IMAGE);
+  setLinkHref('link[rel="canonical"]', DEFAULT_CANONICAL_URL);
+}
+
+function updateVehicleUrlState(car, mode = 'push') {
+  const method = mode === 'replace' ? 'replaceState' : 'pushState';
+  updateBrowserHistory(method, { vehicleModal: true, vehicleSlug: getVehicleSlug(car) }, getVehicleUrl(car));
 }
 
 function escapeHtml(value) {
@@ -301,22 +390,16 @@ function getRequestedVehicleSlug() {
   }
 }
 
-function redirectMissingVehicleToCars() {
-  const rootPath = window.location.pathname.replace(/[^/]*$/, '');
-  window.location.replace(`${rootPath || '/'}#cars`);
-}
-
 function openRequestedVehicleFromUrl() {
   const requestedSlug = getRequestedVehicleSlug();
   if (!requestedSlug) return;
   const car = availableCars.find(item => item.slug === requestedSlug || item.folder === requestedSlug);
   if (!car) {
-    redirectMissingVehicleToCars();
+    updateBrowserHistory('replaceState', null, getHomepageUrl());
     return;
   }
-  const carsSection = document.getElementById('cars');
-  if (carsSection) carsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  window.setTimeout(() => openModal(car.id), 450);
+  openModal(car.id, { updateUrl: false, urlMode: 'replace' });
+  updateVehicleUrlState(car, 'replace');
 }
 
 /* ── CREATE CARD ── */
@@ -406,6 +489,8 @@ function createModal() {
             Bel 0486 89 00 02
           </a>
           <a href="#contact" class="btn btn-outline btn-block" id="modal-contact-btn">Stuur een bericht</a>
+          <button type="button" class="btn btn-outline btn-block" id="modal-share-btn">Deel deze wagen</button>
+          <button type="button" class="btn btn-outline btn-block" id="modal-copy-link-btn">Kopieer link</button>
         </div>
       </div>
     </div>`;
@@ -417,7 +502,7 @@ let currentCarId = null;
 let currentImgIndex = 0;
 let lastFocusedElement = null;
 
-function openModal(carId) {
+function openModal(carId, { updateUrl = true, urlMode = 'push' } = {}) {
   const car = availableCars.find(c => String(c.id) === String(carId));
   if (!car) return;
 
@@ -513,14 +598,62 @@ function openModal(carId) {
     closeModal();
   };
 
+  document.getElementById('modal-share-btn').onclick = () => shareVehicle(car);
+  document.getElementById('modal-copy-link-btn').onclick = () => copyVehicleUrl(car);
+
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   document.getElementById('modal-close').focus();
+
+  if (updateUrl) updateVehicleUrlState(car, urlMode);
+  try {
+    updateVehicleMetadata(car);
+  } catch (error) {
+    console.warn('De metadata van het voertuig kon niet worden bijgewerkt.', error);
+  }
 
   trackVehicleEvent('car_details_open', car, {
     open_source: openSource,
     image_count: imgs.length
   });
+}
+
+async function shareVehicle(car) {
+  const title = getVehicleTitle(car);
+  const url = getVehicleUrl(car);
+  const shareData = {
+    title: `${title} | Layan Garage BV`,
+    text: `${title} bekijken bij Layan Garage BV`,
+    url
+  };
+  const button = document.getElementById('modal-share-btn');
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await copyVehicleUrl(car, button, 'Deel deze wagen');
+    }
+    trackVehicleEvent('car_share', car, { share_url: url });
+  } catch (error) {
+    if (error?.name !== 'AbortError') console.warn('Delen van voertuiglink is mislukt.', error);
+  }
+}
+
+async function copyVehicleUrl(car, button = document.getElementById('modal-copy-link-btn'), defaultLabel = 'Kopieer link') {
+  const url = getVehicleUrl(car);
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url);
+    } else {
+      window.prompt('Kopieer de link naar deze wagen:', url);
+    }
+    button.textContent = 'Link gekopieerd';
+    window.setTimeout(() => { button.textContent = defaultLabel; }, 1800);
+    trackVehicleEvent('car_link_copy', car, { share_url: url });
+  } catch (error) {
+    console.warn('Kopiëren van voertuiglink is mislukt.', error);
+  }
 }
 
 function updateModalImage(imgs, index) {
@@ -533,11 +666,14 @@ function updateModalImage(imgs, index) {
     t.classList.toggle('active', i === index));
 }
 
-function closeModal() {
+function closeModal({ updateUrl = true } = {}) {
   const modal = document.getElementById('car-modal');
+  if (!modal?.classList.contains('open')) return;
   modal.classList.remove('open');
   document.body.style.overflow = '';
   currentCarId = null;
+  if (updateUrl) updateBrowserHistory('replaceState', null, getHomepageUrl());
+  restoreHomepageMetadata();
   if (lastFocusedElement) lastFocusedElement.focus();
   lastFocusedElement = null;
 }
@@ -556,6 +692,8 @@ async function hydrateVehicleInventory() {
 async function renderCars() {
   const container = document.getElementById('cars-container');
   if (!container) return;
+
+  normalizeHomepagePath();
 
   if (!document.getElementById('car-modal')) createModal();
 
@@ -579,38 +717,56 @@ async function renderCars() {
 
   window.availableCars = availableCars;
   window.dispatchEvent(new CustomEvent('vehicles:loaded', { detail: { vehicles: availableCars } }));
+
+  if (!vehicleEventsBound) {
+    vehicleEventsBound = true;
+
+    document.addEventListener('click', e => {
+      const callLink = e.target.closest('[data-car-call-id]');
+      if (callLink) {
+        const car = availableCars.find(c => String(c.id) === String(callLink.dataset.carCallId));
+        trackVehicleEvent('car_call_button', car, {
+          button_location: callLink.dataset.carContactSource || 'unknown'
+        });
+        return;
+      }
+
+      const btn = e.target.closest('[data-car-id]');
+      if (btn) {
+        e.preventDefault();
+        openModal(btn.dataset.carId);
+      }
+      if (e.target.id === 'modal-backdrop' || e.target.id === 'modal-close' || e.target.closest('#modal-close')) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (!currentCarId) return;
+      const car  = availableCars.find(c => String(c.id) === String(currentCarId));
+      if (!car) return;
+      const imgs = getVehicleImages(car);
+      if (e.key === 'Escape')     closeModal();
+      if (e.key === 'ArrowLeft')  { currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length; updateModalImage(imgs, currentImgIndex); }
+      if (e.key === 'ArrowRight') { currentImgIndex = (currentImgIndex + 1) % imgs.length; updateModalImage(imgs, currentImgIndex); }
+    });
+
+    window.addEventListener('popstate', () => {
+      const requestedSlug = getRequestedVehicleSlug();
+      if (!requestedSlug) {
+        closeModal({ updateUrl: false });
+        return;
+      }
+      const car = availableCars.find(item => getVehicleSlug(item) === requestedSlug);
+      if (car && String(currentCarId) !== String(car.id)) {
+        openModal(car.id, { updateUrl: false });
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      if (/^#wagen\//.test(window.location.hash)) openRequestedVehicleFromUrl();
+    });
+  }
+
   openRequestedVehicleFromUrl();
-
-  if (vehicleEventsBound) return;
-  vehicleEventsBound = true;
-
-  document.addEventListener('click', e => {
-    const callLink = e.target.closest('[data-car-call-id]');
-    if (callLink) {
-      const car = availableCars.find(c => String(c.id) === String(callLink.dataset.carCallId));
-      trackVehicleEvent('car_call_button', car, {
-        button_location: callLink.dataset.carContactSource || 'unknown'
-      });
-      return;
-    }
-
-    const btn = e.target.closest('[data-car-id]');
-    if (btn) {
-      e.preventDefault();
-      openModal(btn.dataset.carId);
-    }
-    if (e.target.id === 'modal-backdrop' || e.target.id === 'modal-close' || e.target.closest('#modal-close')) closeModal();
-  });
-
-  document.addEventListener('keydown', e => {
-    if (!currentCarId) return;
-    const car  = availableCars.find(c => String(c.id) === String(currentCarId));
-    if (!car) return;
-    const imgs = getVehicleImages(car);
-    if (e.key === 'Escape')     closeModal();
-    if (e.key === 'ArrowLeft')  { currentImgIndex = (currentImgIndex - 1 + imgs.length) % imgs.length; updateModalImage(imgs, currentImgIndex); }
-    if (e.key === 'ArrowRight') { currentImgIndex = (currentImgIndex + 1) % imgs.length; updateModalImage(imgs, currentImgIndex); }
-  });
 }
 
 document.addEventListener('DOMContentLoaded', renderCars);

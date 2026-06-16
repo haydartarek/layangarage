@@ -1,0 +1,319 @@
+# FIX UNIQUE SHAREABLE VEHICLE LINKS
+
+## Developer Mode | Deep Investigation | Production Safe Fix
+
+## Project: Layan Garage BV
+
+## Path: D:\layan_garage
+
+## Problem
+
+The current vehicle sharing behavior is wrong.
+
+When a user opens any vehicle and wants to share it, the shared URL is usually only:
+
+https://layangaragebv.be/
+
+This is incorrect.
+
+Each vehicle must have its own unique, stable, shareable URL.
+
+Example:
+
+Vehicle:
+Volkswagen Golf 8 1.5 eHybrid OPF DSG Goal
+
+Current wrong shared URL:
+https://layangaragebv.be/
+
+Required:
+A unique URL that opens the same vehicle directly.
+
+Example format:
+https://layangaragebv.be/?car=volkswagen-golf-8-15-ehybrid-opf-dsg-goal
+
+or:
+https://layangaragebv.be/car/volkswagen-golf-8-15-ehybrid-opf-dsg-goal
+
+Choose the best solution for the existing static hosting setup.
+
+## Critical Requirement
+
+Every current vehicle and every future vehicle added through the admin dashboard must automatically get a unique shareable URL.
+
+The same URL must work on:
+
+* Desktop
+* Mobile
+* Direct browser open
+* WhatsApp share
+* Facebook share
+* Instagram bio/link usage
+* Copy link button
+* Browser refresh
+
+## Investigation First
+
+Before coding, inspect:
+
+* index.html
+* js/cars.js
+* js/main.js
+* js/seo.js
+* admin vehicle creation logic
+* Supabase vehicles table
+* vehicle modal logic
+* current share button logic
+* current URL handling
+* current vehicle identifiers
+* current vehicle slug/id fields
+
+Do not guess.
+
+Find exactly why all vehicles currently share the homepage URL.
+
+## Root Cause To Identify
+
+Check whether the issue is caused by:
+
+* no vehicle slug field
+* no vehicle route state
+* modal opening without updating URL
+* share button using window.location.origin only
+* share button using canonical homepage URL
+* missing query parameter support
+* missing deep-link handler on page load
+* duplicate vehicle titles
+* frontend not reading URL parameters
+* no slug generation for future vehicles
+
+Fix the root cause, not only the visible symptom.
+
+## Required Data Model
+
+Each vehicle must have a stable identifier for sharing.
+
+Preferred fields:
+
+* id: Supabase UUID or numeric id
+* slug: readable SEO-friendly slug
+
+If slug already exists, use it.
+
+If slug does not exist:
+
+* add safe support for slug generation
+* generate slug from vehicle title
+* guarantee uniqueness
+* do not break existing vehicles
+* backfill existing vehicles with slugs if needed
+
+Slug examples:
+
+volkswagen-golf-8-15-ehybrid-opf-dsg-goal
+audi-q7-30-tdi-quattro-tiptronic
+volkswagen-golf-cabriolet-cup-combineert
+
+Use lowercase, hyphen-separated, URL-safe format.
+
+## URL Strategy
+
+Choose one strategy and apply consistently.
+
+For static hosting, query parameter routing is acceptable and safe:
+
+https://layangaragebv.be/?car=vehicle-slug
+
+If clean URLs can be supported safely through .htaccess, this is also acceptable:
+
+https://layangaragebv.be/car/vehicle-slug
+
+But do not break Hostinger static hosting.
+
+If clean URLs require risky routing changes, use query parameters.
+
+## Required Behavior
+
+When a user clicks "Meer info" on a vehicle:
+
+1. Open the vehicle modal/details.
+2. Update browser URL to the vehicle-specific URL.
+3. Do not reload the page.
+4. Browser back button should close the modal or return to the previous state.
+5. Copy/share should use the vehicle-specific URL.
+
+When a user opens a vehicle URL directly:
+
+Example:
+https://layangaragebv.be/?car=volkswagen-golf-8-15-ehybrid-opf-dsg-goal
+
+The website must:
+
+1. Load vehicles.
+2. Find the matching vehicle by slug.
+3. Open the correct vehicle modal automatically.
+4. If the vehicle does not exist, show homepage normally and do not crash.
+5. Optionally show a clean warning in console only during development.
+
+## Sharing Requirements
+
+Update share logic so that:
+
+* Each vehicle shares its own URL.
+* The share text contains the vehicle title.
+* The share URL is not homepage-only.
+* Mobile Web Share API uses the vehicle URL.
+* Desktop copy link uses the vehicle URL.
+* WhatsApp message uses the vehicle URL if applicable.
+
+Do not use only:
+window.location.origin
+
+Do not use only:
+https://layangaragebv.be/
+
+## SEO Requirements
+
+The solution must be SEO-safe.
+
+For query parameter links:
+
+* The homepage canonical can remain https://layangaragebv.be/
+* Do not create duplicate canonical problems.
+* Do not put all vehicle parameter URLs into sitemap unless there are true static/detail pages.
+* Vehicle schema may still exist dynamically.
+
+If clean vehicle pages are implemented:
+
+* Each vehicle page must have proper title, description, canonical, OG image, and schema.
+* But do not implement full vehicle pages unless it is stable and safe.
+
+Main priority now:
+Correct sharing and deep-linking.
+
+SEO enhancement can be secondary.
+
+## Open Graph / Social Preview
+
+If possible within the static architecture:
+
+* Update document title when vehicle modal opens.
+* Update meta description dynamically.
+* Update og:title and og:description dynamically.
+* Use vehicle cover image if possible.
+
+But do not claim social platforms will always read dynamic JS meta tags because many crawlers do not execute JavaScript.
+
+If full social preview requires server-side/static generated pages, document it as a limitation.
+
+## Admin Requirements
+
+When creating or editing a vehicle:
+
+* slug should be generated automatically from the vehicle title if missing.
+* If title changes, avoid breaking old links if possible.
+* Prefer keeping slug stable once created.
+* If admin manually edits slug, validate uniqueness.
+* Existing vehicles must receive slugs.
+
+Do not force admin to type slug manually unless optional.
+
+## Current Vehicles
+
+Make sure unique URLs work for at least:
+
+* Volkswagen Golf 8 1.5 eHybrid OPF DSG Goal
+* Audi Q7 3.0 TDI Quattro Tiptronic
+* Volkswagen Golf Cabriolet Cup combineert
+* Any other visible vehicles currently in Supabase
+
+## Testing Requirements
+
+Test deeply:
+
+### Desktop
+
+1. Open homepage.
+2. Click Volkswagen Golf 8.
+3. Confirm URL changes to unique vehicle URL.
+4. Copy URL.
+5. Open in new tab.
+6. Confirm same vehicle opens automatically.
+7. Close modal.
+8. Confirm URL returns to homepage or expected state.
+9. Use browser back button.
+10. Confirm behavior is stable.
+
+### Mobile
+
+1. Open website on mobile viewport.
+2. Open a vehicle.
+3. Use share button.
+4. Confirm shared URL contains vehicle slug.
+5. Open shared URL.
+6. Confirm same vehicle opens.
+
+### Edge Cases
+
+* Sold vehicle URL.
+* Hidden vehicle URL.
+* Deleted vehicle URL.
+* Duplicate vehicle titles.
+* Vehicle without image.
+* Vehicle without slug.
+* Old homepage link.
+* Refresh while modal is open.
+
+## Do Not Break
+
+Do not break:
+
+* vehicle card rendering
+* vehicle modal
+* Supabase fetching
+* admin dashboard
+* image drag and drop
+* main image selection
+* vehicle ordering
+* SEO schema
+* Google Analytics
+* mobile layout
+* desktop layout
+* contact buttons
+* WhatsApp buttons
+
+## Cleanup
+
+Remove old broken share logic that always returns homepage.
+
+Remove duplicated URL building logic.
+
+Create one clear helper for vehicle URL generation.
+
+Suggested helper names:
+
+* createVehicleSlug
+* getVehicleUrl
+* openVehicleFromUrl
+* updateVehicleUrlState
+
+Use professional naming.
+
+## Final Report Required
+
+Return:
+
+1. Root cause found.
+2. Files inspected.
+3. Files modified.
+4. URL strategy chosen.
+5. Slug field status.
+6. Existing vehicles backfilled or handled.
+7. Share button behavior.
+8. Direct vehicle URL behavior.
+9. Desktop test results.
+10. Mobile test results.
+11. SEO limitations.
+12. Remaining risks, if any.
+
+Do not mark complete until each vehicle has a unique shareable URL and opening that URL directly loads the correct vehicle.

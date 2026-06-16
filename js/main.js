@@ -478,7 +478,9 @@ function initializeContactForm() {
           telefoon: v('telefoon'),
           email: v('email'),
           message: v('bericht'),
-          page: window.location.href
+          page: window.LayanVehicleStore?.getPublicUrl?.(
+            `${window.location.pathname}${window.location.search}${window.location.hash}`
+          ) || 'https://layangaragebv.be/'
         })
       });
 

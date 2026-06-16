@@ -58,7 +58,7 @@ Telefoon     : 0486 89 00 02 ← zichtbare tekst
 E-mail       : info@layangaragebv.be
 Website      : https://layangaragebv.be/
 BTW          : BE0770476641
-Lat/Lng      : 51.2183, 4.2522
+Lat/Lng      : 51.2074493, 4.2435271
 ```
 
 **⛔ VERBODEN afwijkingen:**
@@ -215,7 +215,7 @@ Wikkel de bestaande adresgegevens in `<address>` tags als dat nog niet zo is.
 |-------------|-----------|-------|
 | `WebSite` + SearchAction | → check | Voeg toe indien ontbreekt |
 | `["AutoDealer", "AutoRepair"]` | → check | Gebruik array, niet additionalType |
-| `GeoCoordinates` | → check | `lat: 51.2183, lng: 4.2522` |
+| `GeoCoordinates` | → check | `lat: 51.2074493, lng: 4.2435271` |
 | `openingHoursSpecification` | → check | Vervang string door object |
 | `FAQPage` | → check | 7 vragen minimum |
 | `Service` (Depannage) | → check | Met areaServed als City-objecten |
@@ -253,8 +253,8 @@ Wikkel de bestaande adresgegevens in `<address>` tags als dat nog niet zo is.
   },
   "geo": {
     "@type": "GeoCoordinates",
-    "latitude": 51.2183,
-    "longitude": 4.2522
+    "latitude": 51.2074493,
+    "longitude": 4.2435271
   },
   "hasMap": "https://maps.google.com/maps?q=Albert+Panisstraat+130,+9120+Beveren-Waas,+Belgie",
   "openingHoursSpecification": [

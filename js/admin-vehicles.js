@@ -286,10 +286,11 @@
   function readFormVehicle() {
     const form = els.form.elements;
     const titleValue = form.title.value.trim();
+    const existingVehicle = selectedVehicle();
     return {
       id: form.id.value || undefined,
       title: titleValue,
-      slug: window.LayanVehicleStore.slugify(titleValue),
+      slug: existingVehicle?.slug || window.LayanVehicleStore.slugify(titleValue),
       brand: form.brand.value.trim(),
       model: form.model.value.trim(),
       year: form.year.value.trim(),

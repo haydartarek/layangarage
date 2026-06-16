@@ -70,8 +70,8 @@ function injectStaticSchemaScripts() {
         },
         "geo": {
             "@type": "GeoCoordinates",
-            "latitude": 51.2183,
-            "longitude": 4.2522
+            "latitude": 51.2074493,
+            "longitude": 4.2435271
         },
         "hasMap": "https://www.google.com/maps/search/?api=1&query=Albert%20Panisstraat%20130%2C%209120%20Beveren-Waas%2C%20Belgium",
         "areaServed": [
@@ -101,7 +101,8 @@ function injectStaticSchemaScripts() {
         "sameAs": [
             "https://www.facebook.com/layangaragebv",
             "https://www.instagram.com/elmasry_garage/",
-            "https://www.tiktok.com/@layangarage"
+            "https://www.tiktok.com/@layangarage",
+            "https://www.linkedin.com/company/layan-garage-bv/"
         ],
         "hasOfferCatalog": {
             "@type": "OfferCatalog",
@@ -199,7 +200,7 @@ function injectStaticSchemaScripts() {
                 "name": "Kan ik mijn wagen verkopen bij Layan Garage BV in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Ja, wij kopen tweedehands wagens aan. Breng uw wagen langs of bel ons voor een snelle en eerlijke beoordeling. Zo kunt u uw auto verkopen aan een garage in het Waasland zonder onduidelijke afspraken."
+                    "text": "Ja, wij kopen tweedehands wagens aan. Breng uw wagen langs of bel ons op 0486 89 00 02 voor een snelle en eerlijke beoordeling. Zo kunt u uw auto verkopen aan een garage in het Waasland zonder onduidelijke afspraken."
                 }
             },
             {
@@ -236,6 +237,14 @@ function injectStaticSchemaScripts() {
             },
             {
                 "@type": "Question",
+                "name": "Kan ik de olie laten verversen bij Layan Garage BV in Beveren-Waas?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Ja, u kunt bij ons terecht voor een olieverversing en het vervangen van filters voor alle automerken in Beveren-Waas. Maak een afspraak via telefoon of WhatsApp op 0486 89 00 02."
+                }
+            },
+            {
+                "@type": "Question",
                 "name": "Helpen jullie bij depannage of pechhulp in het Waasland?",
                 "acceptedAnswer": {
                     "@type": "Answer",
@@ -244,10 +253,18 @@ function injectStaticSchemaScripts() {
             },
             {
                 "@type": "Question",
-                "name": "Kan ik mijn airco laten bijvullen of banden laten controleren in Beveren-Waas?",
+                "name": "Kan ik mijn airco laten bijvullen en controleren in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Ja, u kunt bij ons terecht voor airco bijvullen in Beveren-Waas, bandenservice, wielcontrole en algemeen onderhoud. We combineren dit indien gewenst met een bredere controle van uw voertuig."
+                    "text": "Ja, u kunt bij ons terecht voor airconditioning bijvullen en controleren, banden wisselen, wielcontrole en algemeen onderhoud. We combineren dit indien gewenst met een bredere controle van uw voertuig."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Wat moet ik doen bij startproblemen met mijn wagen in Beveren-Waas?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Bel ons direct op 0486 89 00 02 of stuur een WhatsApp-bericht. Wij helpen u snel verder met diagnose, pechhulp of transport naar onze werkplaats in Beveren-Waas."
                 }
             }
         ]
@@ -321,9 +338,8 @@ function injectVehicleSchemaScripts(vehicleList) {
         const mainImage = /^https?:\/\//i.test(rawImage) || rawImage.startsWith("assets/")
             ? rawImage
             : "assets/images/hero-garage.jpg";
-        const absoluteImage = /^https?:\/\//i.test(mainImage)
-            ? mainImage
-            : `https://layangaragebv.be/${mainImage}`;
+        const absoluteImage = window.LayanVehicleStore?.getPublicUrl?.(mainImage)
+            || (/^https?:\/\//i.test(mainImage) ? mainImage : `https://layangaragebv.be/${mainImage}`);
         const title = car.title || `${car.brand} ${car.model}`.trim();
         const baseVehicleDescription = car.description && String(car.description).trim()
             ? String(car.description).trim()
@@ -377,8 +393,8 @@ function injectVehicleSchemaScripts(vehicleList) {
             "offers": {
                 "@type": "Offer",
                 "url": car.slug
-                    ? `https://layangaragebv.be/#wagen/${car.slug}`
-                    : "https://layangaragebv.be/#cars",
+                    ? (window.LayanVehicleStore?.getVehicleUrl?.(car) || `https://layangaragebv.be/?car=${encodeURIComponent(car.slug)}`)
+                    : (window.LayanVehicleStore?.getPublicUrl?.('/#cars') || "https://layangaragebv.be/#cars"),
                 "priceCurrency": "EUR",
                 ...(hasPrice ? { "price": numericPrice } : {}),
                 "availability": statusKey === "beschikbaar"

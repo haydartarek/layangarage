@@ -4,6 +4,8 @@
    ============================================================ */
 
 (function vehicleStoreModule() {
+  const PRODUCTION_SITE_URL = 'https://layangaragebv.be';
+
   const STATUS_TO_SITE = {
     available: 'beschikbaar',
     reserved: 'gereserveerd',
@@ -64,6 +66,43 @@
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 90);
+  }
+
+  function getVehicleSlug(vehicle) {
+    return vehicle?.slug || vehicle?.folder || slugify(buildTitle(vehicle));
+  }
+
+  function getPublicSiteUrl() {
+    return PRODUCTION_SITE_URL;
+  }
+
+  function getPublicUrl(path = '/') {
+    const value = String(path || '/').trim();
+    if (/^https?:\/\//i.test(value) && !/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(?:\/|$)/i.test(value)) {
+      return value;
+    }
+
+    let publicPath = value;
+    try {
+      const parsed = new URL(value);
+      publicPath = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+      if (parsed.protocol === 'file:') {
+        const publicAssetPath = publicPath.match(/\/((?:assets|admin|css|js)\/.*)$/i);
+        publicPath = publicAssetPath ? `/${publicAssetPath[1]}` : '/';
+      }
+    } catch {
+      // Relative paths are resolved against the production site below.
+    }
+
+    publicPath = publicPath.replace(/^\/?index\.html(?=\/|[?#]|$)/i, '/');
+    return new URL(publicPath, `${getPublicSiteUrl()}/`).toString();
+  }
+
+  function getVehicleUrl(vehicle) {
+    const slug = getVehicleSlug(vehicle);
+    const url = new URL(getPublicUrl('/'));
+    if (slug) url.searchParams.set('car', slug);
+    return url.toString();
   }
 
   function buildTitle(vehicle) {
@@ -549,6 +588,10 @@
     normalizeVehicle,
     sortVehiclesForListing,
     getVehicleCoverImage,
+    getVehicleSlug,
+    getPublicSiteUrl,
+    getPublicUrl,
+    getVehicleUrl,
     slugify,
     publicImageUrl,
     STATUS_TO_DB,
