@@ -133,12 +133,12 @@ strong{font-weight:600}
   <strong>🚨 Issue #1 — CRITICAL: Two separate URLs indexed by Google</strong><br>
   <code>https://www.layangaragebv.be/</code> → 692 impressions · position 4.3 · 28 clicks<br>
   <code>https://layangaragebv.be/</code> → 564 impressions · position 23.43 · 27 clicks<br><br>
-  Google treats these as <strong>two different pages</strong> and splits domain authority between them. This explains the erratic position swings. Total combined impressions = <strong>1,256</strong> — all of that power should flow into one URL. Fix: 301 redirect + canonical alignment (see Fix #1 below).
+  Google treated these as <strong>two different pages</strong> during the export window and split authority between them. The project canonical is now <strong>non-www</strong>: <code>https://layangaragebv.be/</code>. The correct fix is <strong>www → non-www</strong> 301 redirect plus canonical alignment, not the opposite.
 </div>
 
 <div class="alert alert-amber">
-  <strong>⚠ Issue #2: Old WordPress sub-pages still indexed — zero CTR despite top-5 positions</strong><br>
-  GSC shows 7 sub-page URLs (<code>/diensten/motordiagnose/</code>, <code>/verkoop-wagens/</code>, etc.) ranked at positions 3–7 with 500+ combined impressions but near-zero clicks. Since Google only ranks pages that return HTTP 200, these are <strong>live WordPress pages</strong> still on the server with outdated title tags and meta descriptions — causing users to see them in results and not click. Fix: redirect or update each page (see Fix #2 below).
+  <strong>⚠ Issue #2: Old WordPress URLs still indexed — now redirected instead of 404</strong><br>
+  GSC shows legacy WordPress URLs (<code>/diensten/motordiagnose/</code>, <code>/verkoop-wagens/</code>, etc.) ranked at positions 3–7 with 500+ combined impressions but near-zero clicks. Live testing on 16 June showed these URLs returned <strong>404</strong> after the static-site migration. Fix applied: 301 redirects from the old URLs to the matching landing-page sections, preserving users and SEO signals.
 </div>
 
 <div class="alert alert-blue">
@@ -258,35 +258,35 @@ strong{font-weight:600}
 
   <!-- FIX 1 -->
   <div class="fix-card priority-1">
-    <div class="fix-num">Fix #1 · This week · Highest priority</div>
-    <div class="fix-title">Resolve www vs non-www duplicate</div>
-    <div class="fix-why">Google is splitting 1,256 combined impressions between two URLs. Merging them into one will consolidate authority and push the real homepage from position ~14 (average of 4.3 and 23.4) to position 4–5 immediately — no content change needed.</div>
-    <div class="fix-label">Add to .htaccess (redirect non-www → www)</div>
+    <div class="fix-num">Fix #1 · Completed · Highest priority</div>
+    <div class="fix-title">Resolve www vs non-www duplicate using non-www canonical</div>
+    <div class="fix-why">The site standard is <code>https://layangaragebv.be/</code>. Keeping one canonical host prevents Google from splitting impressions, links and ranking signals between two homepage URLs.</div>
+    <div class="fix-label">Current .htaccess rule (redirect www → non-www)</div>
     <div class="code-block">RewriteEngine On
-RewriteCond %{HTTP_HOST} !^www\. [NC]
-RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]</div>
-    <div class="fix-label">Then verify canonical in index.html &lt;head&gt;</div>
-    <div class="code-block">&lt;link rel="canonical" href="https://www.layangaragebv.be/"&gt;</div>
-    <div class="fix-label">After fix — request re-indexing in GSC</div>
+RewriteCond %{HTTP_HOST} ^www\.layangaragebv\.be$ [NC]
+RewriteRule ^ https://layangaragebv.be%{REQUEST_URI} [R=301,L,NE]</div>
+    <div class="fix-label">Canonical in index.html &lt;head&gt;</div>
+    <div class="code-block">&lt;link rel="canonical" href="https://layangaragebv.be/"&gt;</div>
+    <div class="fix-label">Next step in GSC</div>
     <div class="code-block">GSC → URL Inspection → https://layangaragebv.be/ → Request Indexing</div>
-    <span class="impact imp-high">Impact: HIGH — immediate position gain</span>
+    <span class="impact imp-high">Impact: HIGH — consolidates homepage signals into one canonical URL</span>
   </div>
 
   <!-- FIX 2 -->
   <div class="fix-card priority-2">
-    <div class="fix-num">Fix #2 · This week · High priority</div>
+    <div class="fix-num">Fix #2 · Completed locally · High priority</div>
     <div class="fix-title">Redirect old WordPress sub-pages → main site</div>
-    <div class="fix-why">These pages return HTTP 200 with old content (confirmed by GSC impressions). Google ranks them but users don't click because the title/description is outdated. 301 redirects pass their existing ranking power to the correct page and fix the CTR issue.</div>
-    <div class="fix-label">Add to .htaccess (after Fix #1 rules)</div>
-    <div class="code-block">Redirect 301 /diensten/motordiagnose/ https://www.layangaragebv.be/#diagnose
-Redirect 301 /diensten/band-en-wielservices/ https://www.layangaragebv.be/#services
-Redirect 301 /diensten/remreparatie/ https://www.layangaragebv.be/#services
-Redirect 301 /onderhoud/ https://www.layangaragebv.be/#services
-Redirect 301 /verkoop-wagens/ https://www.layangaragebv.be/#cars
-Redirect 301 /inventory/ https://www.layangaragebv.be/#cars
-Redirect 301 /cookiebeleid-eu/ https://www.layangaragebv.be/privacy.html</div>
-    <div class="fix-label">After adding — submit sitemap in GSC</div>
-    <div class="code-block">GSC → Sitemaps → Submit → https://www.layangaragebv.be/sitemap.xml</div>
+    <div class="fix-why">These URLs had ranking signals in GSC but returned 404 after the WordPress-to-static migration. The correct fix is a 301 redirect to the closest matching section on the new landing page.</div>
+    <div class="fix-label">Added to .htaccess</div>
+    <div class="code-block">/diensten/motordiagnose/ → https://layangaragebv.be/#service-diagnose
+/diensten/band-en-wielservices/ → https://layangaragebv.be/#service-wheels
+/diensten/remreparatie/ → https://layangaragebv.be/#service-brakes
+/onderhoud/ → https://layangaragebv.be/#maintenance
+/verkoop-wagens/ → https://layangaragebv.be/#cars
+/inventory/fuel|make/... → https://layangaragebv.be/#cars
+/cookiebeleid-eu/ → https://layangaragebv.be/privacy.html</div>
+    <div class="fix-label">After uploading — submit sitemap in GSC</div>
+    <div class="code-block">GSC → Sitemaps → Submit → https://layangaragebv.be/sitemap.xml</div>
     <span class="impact imp-high">Impact: HIGH — recovers 500+ stranded impressions</span>
   </div>
 
@@ -339,15 +339,15 @@ goudengids.be · infobel.be · cylex.be · bizzy.org</div>
     <div class="v-icon">✅</div>
     <div>
       <div class="v-title">Sub-pages are indexing and ranking independently</div>
-      <div class="v-desc">/diensten/motordiagnose/ at position 5 with 144 impressions. /verkoop-wagens/ at position 3.5 with actual clicks. This confirms that the site's multi-page structure is generating organic visibility — broader than a single-page site would achieve.</div>
+      <div class="v-desc">Legacy WordPress URLs such as /diensten/motordiagnose/ and /verkoop-wagens/ still had strong visibility in GSC. Because the current project is a static landing page, those old URLs should not remain as 404s. They have been mapped with 301 redirects to the closest matching sections on the new site.</div>
     </div>
   </div>
 
   <div class="v-row">
-    <div class="v-icon">🚨</div>
+    <div class="v-icon">✅</div>
     <div>
-      <div class="v-title">One urgent structural issue: www vs non-www split</div>
-      <div class="v-desc">This is the single most impactful fix available right now. It costs 3 lines of .htaccess code and will consolidate 1,256 impressions into one URL. Do this before anything else.</div>
+      <div class="v-title">Canonical host decision: non-www</div>
+      <div class="v-desc">The production canonical is https://layangaragebv.be/. The correct redirect direction is www → non-www. Do not switch to www; that would conflict with the current canonical, Open Graph URLs, schema URLs and sitemap.</div>
     </div>
   </div>
 
@@ -373,10 +373,10 @@ goudengids.be · infobel.be · cylex.be · bizzy.org</div>
       <div class="v-title">Next GSC export — what to look for (mid-July)</div>
       <div class="v-desc">
         ✓ "garage beveren" CTR should rise from 0% to 5%+ after meta description fix.<br>
-        ✓ www homepage impressions should increase as non-www impressions drop to zero.<br>
-        ✓ Old WordPress sub-pages (/diensten/, /onderhoud/) should disappear from Pages report.<br>
+        ✓ non-www homepage impressions should absorb the old www impressions over time.<br>
+        ✓ Old WordPress sub-pages (/diensten/, /onderhoud/, /inventory/) should drop after 301 redirects are crawled.<br>
         ✓ New keywords: "gratis motordiagnose Beveren-Waas", "airco bijvullen Beveren-Waas" should appear.<br>
-        ✓ Average position should improve from 13.6 to below 10 if fixes #1 and #2 are applied.
+        ✓ Average position should improve from 13.6 to below 10 after redirects, sitemap resubmission and recrawling.
       </div>
     </div>
   </div>
