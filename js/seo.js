@@ -91,8 +91,7 @@ function injectStaticSchemaScripts() {
                     "https://schema.org/Tuesday",
                     "https://schema.org/Wednesday",
                     "https://schema.org/Thursday",
-                    "https://schema.org/Friday",
-                    "https://schema.org/Saturday"
+                    "https://schema.org/Friday"
                 ],
                 "opens": "09:00:00",
                 "closes": "18:00:00"
@@ -224,7 +223,7 @@ function injectStaticSchemaScripts() {
                 "name": "Is jullie autogarage open op zaterdag in Beveren-Waas?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Ja, wij zijn open op zaterdag van 09:00 tot 18:00. Maandag tot vrijdag zijn wij ook open van 09:00 tot 18:00."
+                    "text": "Op zaterdag werken wij enkel op afspraak. Van maandag tot vrijdag zijn wij open van 09:00 tot 18:00."
                 }
             },
             {
