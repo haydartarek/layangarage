@@ -228,10 +228,10 @@ function injectStaticSchemaScripts() {
             },
             {
                 "@type": "Question",
-                "name": "Kan ik een gecontroleerde occasiewagen kopen zonder verborgen gebreken?",
+                "name": "Waar kan ik een tweedehandsauto in de buurt van Beveren-Waas bekijken?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Wij controleren onze tweedehandswagens zorgvuldig en communiceren duidelijk over de staat, prijs en voorwaarden. U kunt de wagen bekijken, vragen stellen en in overleg een proefrit maken."
+                    "text": "Bekijk het actuele aanbod occasions op onze website. Per beschikbare wagen vindt u informatie zoals merk, bouwjaar, kilometerstand en prijs. Neem contact op om de beschikbaarheid te bevestigen en een bezichtiging of proefrit af te spreken."
                 }
             },
             {
