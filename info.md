@@ -149,3 +149,6 @@ Notes:
 - Do not upload `.playwright-mcp`.
 - Do not upload temporary optimized image folders.
 - The social media generator copies post text and opens Facebook, Instagram, or WhatsApp. Raw Supabase image URLs are intentionally not included in the generated post text.
+
+Database: u866678843_layangarage
+Username: u866678843_layanapp

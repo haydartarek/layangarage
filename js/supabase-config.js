@@ -1,21 +1,10 @@
 /* ============================================================
-   LAYAN GARAGE BV — Supabase Config
-   Fill these values after creating the Supabase project.
-   Never place a service_role key in this file.
+   LAYAN GARAGE BV — Hostinger API Config
+   Server credentials stay in Hostinger environment configuration.
    ============================================================ */
 
-window.LayanSupabaseConfig = {
-  url: 'https://woilhkvivdtrjxblutei.supabase.co',
-  anonKey: 'sb_publishable_CvgLOsD2gPlXDjmWxXSTIA_Akk1kRml',
-  storageBucket: 'vehicle-images',
-  publicSiteUrl: 'https://layangaragebv.be'
-};
-
-window.hasLayanSupabaseConfig = function hasLayanSupabaseConfig() {
-  const config = window.LayanSupabaseConfig || {};
-  return Boolean(
-    config.url &&
-    config.anonKey &&
-    /^https:\/\/.+\.supabase\.co$/i.test(config.url)
-  );
+window.LayanApiConfig = {
+  apiBaseUrl: '/api',
+  publicSiteUrl: 'https://layangaragebv.be',
+  csrfToken: ''
 };

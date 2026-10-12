@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    LAYAN GARAGE BV — cars.js  v2
    Vehicle Data | Cards | Modal | Gallery
    ============================================================ */
@@ -427,39 +427,39 @@ function createVehicleCard(car) {
   const title       = getVehicleTitle(car);
 
   const primaryBtn = isAvailable
-    ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${car.id}" data-car-contact-source="card">Bel voor info</a>`
+    ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${escapeHtml(car.id)}" data-car-contact-source="card">Bel voor info</a>`
     : isBieden
-      ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${car.id}" data-car-contact-source="card">Breng een bod uit</a>`
-      : `<button class="btn btn-dark btn-disabled" disabled>${label}</button>`;
+      ? `<a href="tel:+32486890002" class="btn btn-primary" data-car-call-id="${escapeHtml(car.id)}" data-car-contact-source="card">Breng een bod uit</a>`
+      : `<button class="btn btn-dark btn-disabled" disabled>${escapeHtml(label)}</button>`;
 
   const article = document.createElement('article');
   article.className = 'vehicle-card';
   article.setAttribute('aria-label', `${title} ${car.year}`);
 
   article.innerHTML = `
-    <button type="button" class="car-image-wrapper" data-car-id="${car.id}"
-      aria-label="Bekijk ${imgs.length} foto's van ${title}">
-      <img src="${mainImg}"
-        alt="${title} ${car.year} te koop bij Layan Garage BV Beveren-Waas"
+    <button type="button" class="car-image-wrapper" data-car-id="${escapeHtml(car.id)}"
+      aria-label="Bekijk ${imgs.length} foto's van ${escapeHtml(title)}">
+      <img src="${escapeHtml(mainImg)}"
+        alt="${escapeHtml(title)} ${escapeHtml(car.year)} te koop bij Layan Garage BV Beveren-Waas"
         loading="lazy" width="600" height="338"
         onerror="this.onerror=null;this.src='assets/images/hero-garage.jpg'"/>
       ${imgs.length > 1 ? `<div class="car-photo-count"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ${imgs.length}</div>` : ''}
     </button>
     <div class="car-body">
-      <h3 class="car-title">${title}</h3>
+      <h3 class="car-title">${escapeHtml(title)}</h3>
       <div class="car-specs" role="list">
-        <div class="spec-item" role="listitem">${iconCalendar} <span>${car.year}</span></div>
-        <div class="spec-item" role="listitem">${iconSpeed}   <span>${car.mileage}</span></div>
-        <div class="spec-item" role="listitem">${iconFuel}    <span>${car.fuel}</span></div>
-        <div class="spec-item" role="listitem">${iconEngine}  <span>${car.engine}</span></div>
+        <div class="spec-item" role="listitem">${iconCalendar} <span>${escapeHtml(car.year)}</span></div>
+        <div class="spec-item" role="listitem">${iconSpeed}   <span>${escapeHtml(car.mileage)}</span></div>
+        <div class="spec-item" role="listitem">${iconFuel}    <span>${escapeHtml(car.fuel)}</span></div>
+        <div class="spec-item" role="listitem">${iconEngine}  <span>${escapeHtml(car.engine)}</span></div>
       </div>
       <div class="car-status-row">
-        <span class="status-badge status-${car.status}">${label}</span>
+        <span class="status-badge status-${/^[a-z-]+$/i.test(car.status) ? car.status : 'onbekend'}">${escapeHtml(label)}</span>
       </div>
-      <div class="car-price" aria-label="Prijs: ${car.price}">${car.price}</div>
+      <div class="car-price" aria-label="Prijs: ${escapeHtml(car.price)}">${escapeHtml(car.price)}</div>
       <div class="car-actions">
         ${primaryBtn}
-        <button class="btn btn-outline" data-car-id="${car.id}">Meer info</button>
+        <button class="btn btn-outline" data-car-id="${escapeHtml(car.id)}">Meer info</button>
       </div>
     </div>`;
 
@@ -554,8 +554,8 @@ function openModal(carId, { updateUrl = true, urlMode = 'push' } = {}) {
   const thumbs = document.getElementById('gallery-thumbs');
   thumbs.innerHTML = hasMultipleImages
     ? imgs.map((src, i) => `
-      <img src="${src}" class="gallery-thumb${i === currentImgIndex ? ' active' : ''}"
-        alt="${title} - foto ${i + 1}" loading="lazy" data-index="${i}"
+      <img src="${escapeHtml(src)}" class="gallery-thumb${i === currentImgIndex ? ' active' : ''}"
+        alt="${escapeHtml(title)} - foto ${i + 1}" loading="lazy" data-index="${i}"
         onerror="this.style.display='none'"/>
     `).join('')
     : '';
@@ -570,20 +570,20 @@ function openModal(carId, { updateUrl = true, urlMode = 'push' } = {}) {
   // specs
   document.getElementById('modal-specs').innerHTML = `
     <div class="modal-spec-item"><strong>Conditie</strong>${CONDITION_LABEL[car.condition] || 'Gebruikt'}</div>
-    <div class="modal-spec-item"><strong>Bouwjaar</strong>${car.year}</div>
-    <div class="modal-spec-item"><strong>Kilometerstand</strong>${car.mileage}</div>
-    <div class="modal-spec-item"><strong>Brandstof</strong>${car.fuel}</div>
-    <div class="modal-spec-item"><strong>Motor</strong>${car.engine}</div>
-    ${car.vermogen ? `<div class="modal-spec-item"><strong>Vermogen</strong>${car.vermogen}</div>` : ''}
-    <div class="modal-spec-item"><strong>Transmissie</strong>${car.transmission}</div>
-    <div class="modal-spec-item"><strong>Euronorm</strong>${car.environmentalClass}</div>
-    <div class="modal-spec-item"><strong>Zitplaatsen</strong>${car.seats}</div>
-    <div class="modal-spec-item"><strong>Status</strong>${STATUS_LABEL[car.status] || car.status}</div>
+    <div class="modal-spec-item"><strong>Bouwjaar</strong>${escapeHtml(car.year)}</div>
+    <div class="modal-spec-item"><strong>Kilometerstand</strong>${escapeHtml(car.mileage)}</div>
+    <div class="modal-spec-item"><strong>Brandstof</strong>${escapeHtml(car.fuel)}</div>
+    <div class="modal-spec-item"><strong>Motor</strong>${escapeHtml(car.engine)}</div>
+    ${car.vermogen ? `<div class="modal-spec-item"><strong>Vermogen</strong>${escapeHtml(car.vermogen)}</div>` : ''}
+    <div class="modal-spec-item"><strong>Transmissie</strong>${escapeHtml(car.transmission)}</div>
+    <div class="modal-spec-item"><strong>Euronorm</strong>${escapeHtml(car.environmentalClass)}</div>
+    <div class="modal-spec-item"><strong>Zitplaatsen</strong>${escapeHtml(car.seats)}</div>
+    <div class="modal-spec-item"><strong>Status</strong>${escapeHtml(STATUS_LABEL[car.status] || car.status)}</div>
   `;
 
   // extras
   document.getElementById('modal-extras').innerHTML = (car.extras || [])
-    .map(e => `<span class="modal-extra-tag">${e}</span>`).join('');
+    .map(e => `<span class="modal-extra-tag">${escapeHtml(e)}</span>`).join('');
 
   // nav buttons
   const prevButton = document.getElementById('gallery-prev');
@@ -697,11 +697,12 @@ function closeModal({ updateUrl = true } = {}) {
 let vehicleEventsBound = false;
 
 async function hydrateVehicleInventory() {
-  if (!window.LayanVehicleStore?.loadVehicles) return;
-  const loadedCars = await window.LayanVehicleStore.loadVehicles({ fallbackVehicles: availableCars });
-  if (Array.isArray(loadedCars) && loadedCars.length) {
-    availableCars = loadedCars;
+  if (!window.LayanVehicleStore?.loadVehicles) {
+    throw new Error('Vehicle inventory API client is unavailable.');
   }
+  const loadedCars = await window.LayanVehicleStore.loadVehicles({ fallbackVehicles: availableCars });
+  if (!Array.isArray(loadedCars)) throw new Error('Ongeldige voertuiggegevens.');
+  availableCars = loadedCars;
 }
 
 async function renderCars() {
@@ -714,15 +715,22 @@ async function renderCars() {
 
   container.innerHTML = '<p class="cars-loading">Voertuigen worden geladen...</p>';
 
+  let loadError = false;
   try {
     await hydrateVehicleInventory();
   } catch (error) {
-    console.warn('Vehicle inventory hydration failed. Local fallback is used.', error);
+    console.error('Vehicle inventory request failed.', error);
+    loadError = true;
+    availableCars = [];
   }
 
   container.innerHTML = '';
   if (!availableCars.length) {
-    container.innerHTML = '<p class="cars-empty">Er zijn momenteel geen voertuigen zichtbaar. Neem contact op voor het actuele aanbod.</p>';
+    container.innerHTML = loadError
+      ? '<p class="cars-empty">Het actuele aanbod kan momenteel niet worden geladen. Neem contact op voor informatie.</p>'
+      : '<p class="cars-empty">Er zijn momenteel geen voertuigen zichtbaar. Neem contact op voor het actuele aanbod.</p>';
+    window.availableCars = [];
+    window.dispatchEvent(new CustomEvent('vehicles:loaded', { detail: { vehicles: [] } }));
     return;
   }
 

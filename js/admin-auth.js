@@ -3,10 +3,6 @@
    ============================================================ */
 
 (function adminAuthModule() {
-  function getClient() {
-    return window.LayanVehicleStore?.getClient?.() || null;
-  }
-
   function setMessage(el, text, type = '') {
     if (!el) return;
     el.textContent = text;
@@ -19,12 +15,9 @@
   }
 
   function loginErrorMessage(error) {
-    const message = `${error?.message || ''} ${error?.code || ''} ${error?.status || ''}`.toLowerCase();
-    if (message.includes('invalid login') || message.includes('invalid_credentials') || message.includes('400')) {
+    const message = String(error?.message || '').toLowerCase();
+    if (message.includes('incorrect') || message.includes('invalid login')) {
       return 'E-mail of wachtwoord is niet correct.';
-    }
-    if (message.includes('email not confirmed')) {
-      return 'Dit admin-account is nog niet bevestigd.';
     }
     return error?.message || 'Inloggen is mislukt.';
   }
@@ -33,7 +26,6 @@
     const email = form.email.value.trim();
     const password = form.password.value;
     let valid = true;
-
     setFieldError(form, 'email', '');
     setFieldError(form, 'password', '');
 
@@ -41,49 +33,42 @@
       setFieldError(form, 'email', 'Vul een geldig e-mailadres in.');
       valid = false;
     }
-
     if (password.length < 8) {
       setFieldError(form, 'password', 'Wachtwoord moet minstens 8 tekens bevatten.');
       valid = false;
     }
-
     return valid;
   }
 
   async function initializeLogin() {
     const form = document.getElementById('admin-login-form');
     const message = document.getElementById('admin-login-message');
-    if (!form) return;
+    const store = window.LayanVehicleStore;
+    if (!form || !store) return;
 
-    if (!window.LayanVehicleStore?.isConfigured?.()) {
-      setMessage(message, 'Supabase is nog niet geconfigureerd. Vul js/supabase-config.js in.', 'error');
+    if (!store.isConfigured()) {
+      setMessage(message, 'Hostinger API is nog niet geconfigureerd.', 'error');
       form.querySelector('button')?.setAttribute('disabled', 'disabled');
       return;
     }
 
-    const client = getClient();
-    if (!client) {
-      setMessage(message, 'Supabase client kon niet worden geladen.', 'error');
-      return;
+    try {
+      if (await store.getCurrentSession()) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+    } catch (error) {
+      setMessage(message, loginErrorMessage(error), 'error');
     }
-
-    const existing = await window.LayanVehicleStore.getCurrentSession();
-    if (existing) window.location.href = 'dashboard.html';
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
       if (!validateLogin(form)) return;
-
       const submit = form.querySelector('button[type="submit"]');
       submit.disabled = true;
       setMessage(message, 'Inloggen...', '');
-
       try {
-        const { error } = await client.auth.signInWithPassword({
-          email: form.email.value.trim(),
-          password: form.password.value
-        });
-        if (error) throw error;
+        await store.login(form.email.value.trim(), form.password.value);
         window.location.href = 'dashboard.html';
       } catch (error) {
         setMessage(message, loginErrorMessage(error), 'error');
@@ -98,16 +83,22 @@
     const blocked = document.getElementById('admin-blocked');
     const message = document.getElementById('admin-guard-message');
     const logout = document.getElementById('admin-logout');
-    if (!app || !blocked) return;
+    const store = window.LayanVehicleStore;
+    if (!app || !blocked || !store) return;
 
-    if (!window.LayanVehicleStore?.isConfigured?.()) {
-      setMessage(message, 'Supabase is nog niet geconfigureerd. Vul js/supabase-config.js in voordat de admin werkt.', 'error');
+    if (!store.isConfigured()) {
+      setMessage(message, 'Hostinger API is nog niet geconfigureerd.', 'error');
       return;
     }
 
-    const client = getClient();
-    const session = await window.LayanVehicleStore.getCurrentSession();
-    if (!client || !session) {
+    let session;
+    try {
+      session = await store.getCurrentSession();
+    } catch (error) {
+      setMessage(message, loginErrorMessage(error), 'error');
+      return;
+    }
+    if (!session) {
       window.location.href = 'login.html';
       return;
     }
@@ -115,14 +106,12 @@
     blocked.hidden = true;
     app.hidden = false;
     window.dispatchEvent(new CustomEvent('admin:ready', { detail: { session } }));
-
     logout?.addEventListener('click', async () => {
-      await client.auth.signOut();
-      window.location.href = 'login.html';
-    });
-
-    client.auth.onAuthStateChange((event, activeSession) => {
-      if (!activeSession && event !== 'INITIAL_SESSION') window.location.href = 'login.html';
+      try {
+        await store.logout();
+      } finally {
+        window.location.href = 'login.html';
+      }
     });
   }
 

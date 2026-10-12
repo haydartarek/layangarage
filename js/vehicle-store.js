@@ -1,6 +1,6 @@
 /* ============================================================
    LAYAN GARAGE BV — Vehicle Store
-   Supabase-backed inventory with local fallback support.
+   Hostinger API-backed inventory with local fallback support.
    ============================================================ */
 
 (function vehicleStoreModule() {
@@ -26,36 +26,78 @@
   };
 
   function getConfig() {
-    return window.LayanSupabaseConfig || {};
+    return window.LayanApiConfig || {};
   }
 
   function isConfigured() {
-    return typeof window.hasLayanSupabaseConfig === 'function' && window.hasLayanSupabaseConfig();
+    return Boolean(getConfig().apiBaseUrl);
   }
 
   function getClient() {
-    if (!isConfigured() || !window.supabase?.createClient) return null;
-    if (!window.LayanSupabaseClient) {
-      const config = getConfig();
-      window.LayanSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    return isConfigured() ? { apiBaseUrl: getConfig().apiBaseUrl } : null;
+  }
+
+  async function request(path, options = {}) {
+    if (!isConfigured()) throw new Error('Hostinger API is not configured.');
+    const config = getConfig();
+    const headers = new Headers(options.headers || {});
+    const body = options.body;
+    if (!(body instanceof FormData) && body !== undefined) {
+      headers.set('Content-Type', 'application/json');
+      options.body = JSON.stringify(body);
     }
-    return window.LayanSupabaseClient;
+    if (config.csrfToken) headers.set('X-CSRF-Token', config.csrfToken);
+    const response = await fetch(`${config.apiBaseUrl}${path}`, {
+      credentials: 'same-origin',
+      ...options,
+      headers
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || `Request failed (${response.status}).`);
+    if (payload.csrf) config.csrfToken = payload.csrf;
+    return payload;
+  }
+
+  // The database can return DECIMAL columns as strings (e.g. "29900.00").
+  // Accept whole-euro values only; never silently multiply a price by 100.
+  function parseWholeNumber(value, label = 'Waarde') {
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    if (typeof value === 'number') {
+      if (Number.isSafeInteger(value) && value >= 0) return value;
+      throw new Error(`${label} moet een geldig geheel getal zijn.`);
+    }
+    const raw = String(value).replace(/[\s\u00a0€]/g, '').replace(/km$/i, '');
+    const withOptionalZeroCents = /^\d+(?:[.,]\d{3})*[.,]00$/.test(raw);
+    const wholeNumber = /^\d+(?:[.,]\d{3})*$/.test(raw);
+    if (!withOptionalZeroCents && !wholeNumber) {
+      throw new Error(`${label} moet een geldig geheel getal zijn.`);
+    }
+    const withoutCents = withOptionalZeroCents ? raw.slice(0, -3) : raw;
+    const number = Number(withoutCents.replace(/[.,]/g, ''));
+    if (!Number.isSafeInteger(number) || number < 0) {
+      throw new Error(`${label} is buiten het toegestane bereik.`);
+    }
+    return number;
   }
 
   function normalizePrice(value) {
     if (value === null || value === undefined || value === '') return '';
-    if (typeof value === 'number') return value.toLocaleString('nl-BE', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0
+    const number = parseWholeNumber(value, 'Prijs');
+    return number.toLocaleString('nl-BE', {
+      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
     });
-    return String(value);
   }
 
   function normalizeMileage(value) {
     if (value === null || value === undefined || value === '') return '';
-    if (typeof value === 'number') return `${value.toLocaleString('nl-BE')} km`;
-    return String(value);
+    const number = parseWholeNumber(value, 'Kilometerstand');
+    return `${number.toLocaleString('nl-BE')} km`;
+  }
+
+  function isVisibleValue(value) {
+    if (value === null || value === undefined) return true;
+    return value === true || value === 1 || value === '1' ||
+      (typeof value === 'string' && value.toLowerCase() === 'true');
   }
 
   function slugify(value) {
@@ -126,11 +168,13 @@
 
   function publicImageUrl(path) {
     if (!path) return '';
-    if (/^https?:\/\//i.test(path) || path.startsWith('assets/')) return path;
-    const client = getClient();
-    if (!client) return path;
-    const bucket = getConfig().storageBucket || 'vehicle-images';
-    return client.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    const src = String(path).trim();
+    if (/^https?:\/\//i.test(src)) return src;
+    if (src.startsWith('assets/')) return src;
+    const relative = src.replace(/^\/+/, '').replace(/^vehicle-images\//i, '');
+    if (!/^vehicles\/[a-z0-9-]+\/[a-z0-9._-]+$/i.test(relative)) return '';
+    const origin = String(getConfig().publicSiteUrl || PRODUCTION_SITE_URL).replace(/\/$/, '');
+    return `${origin}/vehicle-images/${relative}`;
   }
 
   function imageSortValue(image) {
@@ -264,7 +308,7 @@
       conditionLabel: row.condition === 'new' ? 'Nieuw' : 'Gebruikt',
       description: row.description || '',
       status: STATUS_TO_SITE[row.status] || row.status || 'beschikbaar',
-      isVisible: row.is_visible !== false,
+      isVisible: isVisibleValue(row.is_visible ?? row.isVisible),
       displayOrder: row.display_order ?? row.displayOrder ?? 0,
       createdAt: row.created_at || row.createdAt || '',
       updatedAt: row.updated_at || row.updatedAt || '',
@@ -272,53 +316,27 @@
       images,
       imageRecords: imageRows,
       extras: features,
-      source: imageRows.length ? 'supabase' : (row.source || 'local')
+      source: imageRows.length ? 'hostinger' : (row.source || 'local')
     };
     normalized.coverImage = getVehicleCoverImage(normalized) || images[0] || '';
     return normalized;
   }
 
   async function loadVehicles({ fallbackVehicles = [] } = {}) {
-    const fallback = sortVehiclesForListing(fallbackVehicles.map(normalizeVehicle));
-    const client = getClient();
-    if (!client) return fallback;
-
-    const { data, error } = await client
-      .from('vehicles')
-      .select(`
-        *,
-        vehicle_features(id,label,display_order),
-        vehicle_images(id,storage_path,alt_text,is_featured,display_order,created_at)
-      `)
-      .eq('is_visible', true)
-      .order('created_at', { ascending: false })
-      .order('display_order', { ascending: true })
-      .order('title', { ascending: true });
-
-    if (error) {
-      console.warn('Supabase vehicle load failed. Local fallback is used.', error);
-      return fallback;
+    // Static examples may be used in offline/local previews, never as live stock.
+    const localPreview = window.location?.protocol === 'file:' ||
+      /^(localhost|127\.0\.0\.1)$/.test(window.location?.hostname || '');
+    if (!isConfigured()) {
+      return localPreview ? sortVehiclesForListing(fallbackVehicles.map(normalizeVehicle)) : [];
     }
-
-    return sortVehiclesForListing(data || []).map(normalizeVehicle);
+    const data = await request('/vehicles');
+    if (!Array.isArray(data)) throw new Error('Ongeldige voertuiggegevens van de server.');
+    return sortVehiclesForListing(data).map(normalizeVehicle);
   }
 
   async function loadAdminVehicles() {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-
-    const { data, error } = await client
-      .from('vehicles')
-      .select(`
-        *,
-        vehicle_features(id,label,display_order),
-        vehicle_images(id,storage_path,alt_text,is_featured,display_order,created_at)
-      `)
-      .order('created_at', { ascending: false })
-      .order('display_order', { ascending: true })
-      .order('title', { ascending: true });
-
-    if (error) throw error;
+    if (!isConfigured()) throw new Error('Hostinger API is not configured.');
+    const data = await request('/vehicles?admin=1');
     return sortVehiclesForListing(data || []).map(normalizeVehicle);
   }
 
@@ -330,8 +348,8 @@
       brand: vehicle.brand || '',
       model: vehicle.model || '',
       year: vehicle.year ? Number(vehicle.year) : null,
-      price: vehicle.price ? Number(String(vehicle.price).replace(/[^\d]/g, '')) : null,
-      mileage: vehicle.mileage ? Number(String(vehicle.mileage).replace(/[^\d]/g, '')) : null,
+      price: parseWholeNumber(vehicle.price, 'Prijs'),
+      mileage: parseWholeNumber(vehicle.mileage, 'Kilometerstand'),
       fuel_type: vehicle.fuelType || vehicle.fuel || '',
       engine: vehicle.engine || '',
       vermogen: vehicle.vermogen || '',
@@ -341,182 +359,55 @@
       condition: vehicle.condition === 'new' ? 'new' : 'used',
       description: vehicle.description || '',
       status: STATUS_TO_DB[vehicle.status] || 'available',
-      is_visible: vehicle.isVisible !== false,
-      display_order: vehicle.displayOrder ? Number(vehicle.displayOrder) : 0,
-      updated_at: new Date().toISOString()
+      is_visible: isVisibleValue(vehicle.isVisible),
+      display_order: vehicle.displayOrder ? Number(vehicle.displayOrder) : 0
     };
   }
 
-  async function findVehicleBySlug(client, slug) {
-    const { data, error } = await client
-      .from('vehicles')
-      .select('id,slug,vehicle_images(id)')
-      .eq('slug', slug)
-      .maybeSingle();
-
-    if (error) throw error;
-    return data || null;
-  }
-
-  async function buildAvailableSlug(client, baseSlug) {
-    const safeBase = baseSlug || 'vehicle';
-    const { data, error } = await client
-      .from('vehicles')
-      .select('slug')
-      .like('slug', `${safeBase}%`);
-
-    if (error) throw error;
-
-    const used = new Set((data || [])
-      .map(row => row.slug)
-      .filter(slug => slug === safeBase || new RegExp(`^${safeBase}-\\d+$`).test(slug)));
-    if (!used.has(safeBase)) return safeBase;
-
-    let counter = 2;
-    while (used.has(`${safeBase}-${counter}`)) counter += 1;
-    return `${safeBase}-${counter}`;
-  }
-
   async function saveVehicle(vehicle) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-
-    const payload = toDatabasePayload(vehicle);
-    let query;
-
-    if (vehicle.id) {
-      const slugOwner = await findVehicleBySlug(client, payload.slug);
-      if (slugOwner && String(slugOwner.id) !== String(vehicle.id)) {
-        payload.slug = await buildAvailableSlug(client, payload.slug);
+    if (!isConfigured()) throw new Error('Hostinger API is not configured.');
+    const data = await request(
+      vehicle.id ? '/vehicles/' + encodeURIComponent(vehicle.id) : '/vehicles',
+      {
+        method: vehicle.id ? 'PUT' : 'POST',
+        body: toDatabasePayload(vehicle)
       }
-      query = client.from('vehicles').update(payload).eq('id', vehicle.id).select().single();
-    } else {
-      const existing = await findVehicleBySlug(client, payload.slug);
-      const existingImageCount = Array.isArray(existing?.vehicle_images) ? existing.vehicle_images.length : 0;
-
-      if (existing && existingImageCount === 0) {
-        query = client.from('vehicles').update(payload).eq('id', existing.id).select().single();
-      } else {
-        if (existing) payload.slug = await buildAvailableSlug(client, payload.slug);
-        query = client.from('vehicles').insert(payload).select().single();
-      }
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
+    );
     return normalizeVehicle(data);
   }
 
   async function deleteVehicle(vehicleId) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-
-    const { data: imageRows, error: imageReadError } = await client
-      .from('vehicle_images')
-      .select('storage_path')
-      .eq('vehicle_id', vehicleId);
-    if (imageReadError) throw imageReadError;
-
-    const bucket = getConfig().storageBucket || 'vehicle-images';
-    const storagePaths = (imageRows || [])
-      .map(image => image.storage_path)
-      .filter(path => path && !path.startsWith('assets/') && !/^https?:\/\//i.test(path));
-
-    const { error: hideError } = await client
-      .from('vehicles')
-      .update({ is_visible: false, updated_at: new Date().toISOString() })
-      .eq('id', vehicleId);
-    if (hideError) throw hideError;
-
-    if (storagePaths.length) {
-      const { error: storageError } = await client.storage.from(bucket).remove(storagePaths);
-      if (storageError) throw storageError;
-    }
-
-    const { error } = await client.from('vehicles').delete().eq('id', vehicleId);
-    if (error) throw error;
+    await request('/vehicles/' + encodeURIComponent(vehicleId), { method: 'DELETE' });
   }
 
   async function replaceFeatures(vehicleId, labels) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-
-    const cleanLabels = labels.map(label => label.trim()).filter(Boolean);
-    const { error: deleteError } = await client.from('vehicle_features').delete().eq('vehicle_id', vehicleId);
-    if (deleteError) throw deleteError;
-    if (!cleanLabels.length) return;
-
-    const rows = cleanLabels.map((label, index) => ({
-      vehicle_id: vehicleId,
-      label,
-      display_order: index
-    }));
-
-    const { error } = await client.from('vehicle_features').insert(rows);
-    if (error) throw error;
+    const cleanLabels = (labels || []).map(label => String(label).trim()).filter(Boolean);
+    await request('/vehicles/' + encodeURIComponent(vehicleId) + '/features', {
+      method: 'PUT',
+      body: { labels: cleanLabels }
+    });
   }
 
   async function uploadVehicleImages(vehicle, files) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-    const bucket = getConfig().storageBucket || 'vehicle-images';
     const accepted = ['image/jpeg', 'image/png', 'image/webp'];
     const uploadItems = (files || []).map(item => item?.file ? item : ({ file: item, isFeatured: false }));
     const uploaded = [];
-    const { data: existingImages, error: existingImagesError } = await client
-      .from('vehicle_images')
-      .select('display_order,is_featured')
-      .eq('vehicle_id', vehicle.id)
-      .order('display_order', { ascending: false });
-    if (existingImagesError) throw existingImagesError;
-
-    const startingOrder = Array.isArray(existingImages) && existingImages.length
-      ? Number(existingImages[0].display_order || 0) + 1
-      : 0;
-    const hasFeaturedImage = Array.isArray(existingImages) && existingImages.some(image => image.is_featured);
     const hasSelectedIncomingFeatured = uploadItems.some(item => item.isFeatured);
 
-    if (hasFeaturedImage && hasSelectedIncomingFeatured) {
-      const { error: resetFeaturedError } = await client
-        .from('vehicle_images')
-        .update({ is_featured: false })
-        .eq('vehicle_id', vehicle.id);
-      if (resetFeaturedError) throw resetFeaturedError;
-    }
-
-    for (const [index, item] of uploadItems.entries()) {
+    for (const item of uploadItems) {
       const file = item.file;
-      if (!accepted.includes(file.type)) throw new Error(`${file.name} is not an accepted image type.`);
-      if (file.size > 5 * 1024 * 1024) throw new Error(`${file.name} is larger than 5 MB.`);
+      if (!accepted.includes(file.type)) throw new Error(file.name + ' is not an accepted image type.');
+      if (file.size > 5 * 1024 * 1024) throw new Error(file.name + ' is larger than 5 MB.');
 
-      const extension = file.name.split('.').pop().toLowerCase();
-      const safeName = slugify(file.name.replace(/\.[^.]+$/, '')) || 'vehicle-image';
-      const order = startingOrder + index;
-      const paddedOrder = String(order + 1).padStart(2, '0');
-      const uniqueSuffix = window.crypto?.randomUUID ? window.crypto.randomUUID().slice(0, 8) : String(Date.now()).slice(-8);
-      const path = `vehicles/${vehicle.slug || vehicle.id}/${vehicle.slug || vehicle.id}-${paddedOrder}-${safeName}-${uniqueSuffix}.${extension}`;
-      const { error: uploadError } = await client.storage.from(bucket).upload(path, file, {
-        cacheControl: '31536000',
-        upsert: false
+      const form = new FormData();
+      form.append('file', file);
+      form.append('alt_text', (vehicle.title || vehicle.brand || 'Voertuig') + ' foto');
+      form.append('is_featured', hasSelectedIncomingFeatured ? String(Boolean(item.isFeatured)) : 'false');
+
+      const insertedImage = await request('/vehicles/' + encodeURIComponent(vehicle.id) + '/images', {
+        method: 'POST',
+        body: form
       });
-      if (uploadError) throw uploadError;
-
-      const row = {
-        vehicle_id: vehicle.id,
-        storage_path: path,
-        alt_text: `${vehicle.title || vehicle.brand || 'Voertuig'} foto`,
-        is_featured: hasSelectedIncomingFeatured ? Boolean(item.isFeatured) : (!hasFeaturedImage && index === 0),
-        display_order: order
-      };
-      const { data: insertedImage, error: insertError } = await client
-        .from('vehicle_images')
-        .insert(row)
-        .select('id,storage_path,alt_text,is_featured,display_order,created_at')
-        .single();
-      if (insertError) {
-        await client.storage.from(bucket).remove([path]);
-        throw insertError;
-      }
       uploaded.push({
         ...insertedImage,
         pendingId: item.pendingId || '',
@@ -528,52 +419,47 @@
   }
 
   async function setFeaturedImage(vehicleId, imageId) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-    const { error: resetError } = await client
-      .from('vehicle_images')
-      .update({ is_featured: false })
-      .eq('vehicle_id', vehicleId);
-    if (resetError) throw resetError;
-    const { error } = await client
-      .from('vehicle_images')
-      .update({ is_featured: true })
-      .eq('id', imageId);
-    if (error) throw error;
+    await request('/images/' + encodeURIComponent(imageId) + '/featured', {
+      method: 'PUT',
+      body: { vehicle_id: vehicleId }
+    });
   }
 
   async function deleteVehicleImage(image) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-    const bucket = getConfig().storageBucket || 'vehicle-images';
-    if (image.storage_path && !image.storage_path.startsWith('assets/') && !/^https?:\/\//i.test(image.storage_path)) {
-      await client.storage.from(bucket).remove([image.storage_path]);
-    }
-    const { error } = await client.from('vehicle_images').delete().eq('id', image.id);
-    if (error) throw error;
+    await request('/images/' + encodeURIComponent(image.id), { method: 'DELETE' });
   }
 
   async function reorderVehicleImages(imageRows) {
-    const client = getClient();
-    if (!client) throw new Error('Supabase is not configured.');
-    for (const [index, image] of imageRows.entries()) {
-      const { error } = await client
-        .from('vehicle_images')
-        .update({ display_order: index })
-        .eq('id', image.id);
-      if (error) throw error;
-    }
+    const vehicleId = imageRows[0]?.vehicle_id || imageRows[0]?.vehicleId;
+    if (!vehicleId) return;
+    await request('/vehicles/' + encodeURIComponent(vehicleId) + '/images/reorder', {
+      method: 'PUT',
+      body: { ids: imageRows.map(image => image.id) }
+    });
   }
 
   async function getCurrentSession() {
-    const client = getClient();
-    if (!client) return null;
-    const { data } = await client.auth.getSession();
-    return data.session || null;
+    if (!isConfigured()) return null;
+    const payload = await request('/auth/session');
+    return payload.user ? { user: payload.user, csrf: payload.csrf } : null;
+  }
+
+  async function login(email, password) {
+    const payload = await request('/auth/login', {
+      method: 'POST',
+      body: { email, password }
+    });
+    return payload.user ? { user: payload.user, csrf: payload.csrf } : null;
+  }
+
+  async function logout() {
+    await request('/auth/logout', { method: 'POST' });
+    getConfig().csrfToken = '';
   }
 
   window.LayanVehicleStore = {
     getClient,
+    request,
     isConfigured,
     loadVehicles,
     loadAdminVehicles,
@@ -585,6 +471,8 @@
     deleteVehicleImage,
     reorderVehicleImages,
     getCurrentSession,
+    login,
+    logout,
     normalizeVehicle,
     sortVehiclesForListing,
     getVehicleCoverImage,

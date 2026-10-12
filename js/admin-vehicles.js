@@ -42,6 +42,14 @@
     return state.vehicles.find(vehicle => String(vehicle.id) === String(state.selectedId)) || null;
   }
 
+  function toWholeNumberInput(value) {
+    const raw = String(value ?? '').trim().replace(/[\s\u00a0€]/g, '').replace(/km$/i, '');
+    // A MariaDB DECIMAL can be returned with two trailing zero cents.
+    const withoutCents = /^\d+(?:[.,]\d{3})*[.,]00$/.test(raw) ? raw.slice(0, -3) : raw;
+    return /^\d+(?:[.,]\d{3})*$/.test(withoutCents)
+      ? withoutCents.replace(/[.,]/g, '') : '';
+  }
+
   function revokePendingPreviews() {
     state.pendingFiles.forEach(item => {
       if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
@@ -221,8 +229,8 @@
     }
 
     els.vehicleList.innerHTML = state.vehicles.map(vehicle => `
-      <button class="vehicle-admin-item${String(vehicle.id) === String(state.selectedId) ? ' active' : ''}" type="button" data-select-vehicle="${vehicle.id}">
-        <img src="${normalizeImageForAdmin(imageSrc(vehicle))}" alt="${escapeHtml(title(vehicle))}" loading="lazy" onerror="this.src='../assets/images/hero-garage.jpg'">
+      <button class="vehicle-admin-item${String(vehicle.id) === String(state.selectedId) ? ' active' : ''}" type="button" data-select-vehicle="${escapeHtml(vehicle.id)}">
+        <img src="${escapeHtml(normalizeImageForAdmin(imageSrc(vehicle)))}" alt="${escapeHtml(title(vehicle))}" loading="lazy" onerror="this.src='../assets/images/hero-garage.jpg'">
         <span>
           <span class="vehicle-admin-title">${escapeHtml(title(vehicle))}</span>
           <span class="vehicle-admin-meta">${escapeHtml(vehicle.price || 'Prijs op aanvraag')} · ${escapeHtml(vehicle.status || '')} · ${vehicle.isVisible ? 'zichtbaar' : 'verborgen'}</span>
@@ -257,8 +265,8 @@
     els.form.elements.brand.value = vehicle.brand || '';
     els.form.elements.model.value = vehicle.model || '';
     els.form.elements.year.value = vehicle.year || '';
-    els.form.elements.price.value = String(vehicle.price || '').replace(/[^\d]/g, '');
-    els.form.elements.mileage.value = String(vehicle.mileage || '').replace(/[^\d]/g, '');
+    els.form.elements.price.value = toWholeNumberInput(vehicle.price);
+    els.form.elements.mileage.value = toWholeNumberInput(vehicle.mileage);
     setSelectOrOther('fuelType', 'fuelTypeOther', vehicle.fuel || vehicle.fuelType || '');
     setSelectOrOther('engine', 'engineOther', vehicle.engine || '');
     setSelectOrOther('vermogen', 'vermogenOther', vehicle.vermogen || '');
@@ -332,19 +340,19 @@
     const savedMarkup = records.map((image, index) => {
       const src = window.LayanVehicleStore.publicImageUrl(image.storage_path);
       return `
-        <article class="image-admin-card${image.is_featured ? ' image-featured' : ''}" data-image-id="${image.id}">
+        <article class="image-admin-card${image.is_featured ? ' image-featured' : ''}" data-image-id="${escapeHtml(image.id)}">
           <span class="image-drag-handle" role="button" aria-label="Sleep foto naar een andere positie">↕</span>
-          <img src="${src}" alt="${escapeHtml(image.alt_text || title(vehicle))}" loading="lazy">
+          <img src="${escapeHtml(src)}" alt="${escapeHtml(image.alt_text || title(vehicle))}" loading="lazy">
           <div class="image-admin-actions">
-            <button class="admin-btn admin-btn-small admin-btn-primary" type="button" data-image-featured="${image.id}">Main</button>
-            <button class="admin-btn admin-btn-small admin-btn-danger" type="button" data-image-delete="${image.id}">Delete</button>
+            <button class="admin-btn admin-btn-small admin-btn-primary" type="button" data-image-featured="${escapeHtml(image.id)}">Main</button>
+            <button class="admin-btn admin-btn-small admin-btn-danger" type="button" data-image-delete="${escapeHtml(image.id)}">Delete</button>
           </div>
         </article>
       `;
     }).join('');
 
     const pendingMarkup = renderPendingImageCards({ returnMarkup: true });
-    const emptyMarkup = '<p class="admin-muted">Nog geen Supabase afbeeldingen voor deze wagen.</p>';
+    const emptyMarkup = '<p class="admin-muted">Nog geen afbeeldingen voor deze wagen.</p>';
     els.imageList.innerHTML = [savedMarkup, pendingMarkup].filter(Boolean).join('') || emptyMarkup;
     initializeImageSortable();
   }
@@ -356,7 +364,7 @@
       <article class="image-admin-card image-pending-card${item.isFeatured ? ' image-featured' : ''}" data-pending-image-id="${escapeHtml(item.id)}">
         <span class="image-drag-handle" role="button" aria-label="Sleep foto naar een andere positie">↕</span>
         <span class="image-pending-label">Nieuw · ${index + 1}</span>
-        <img src="${item.previewUrl}" alt="${escapeHtml(item.file.name)}" loading="lazy">
+        <img src="${escapeHtml(item.previewUrl)}" alt="${escapeHtml(item.file.name)}" loading="lazy">
         <div class="image-admin-actions">
           <button class="admin-btn admin-btn-small admin-btn-primary" type="button" data-pending-featured="${escapeHtml(item.id)}">Main</button>
           <button class="admin-btn admin-btn-small admin-btn-danger" type="button" data-pending-delete="${escapeHtml(item.id)}">Delete</button>
